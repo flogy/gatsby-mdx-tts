@@ -1,0 +1,15 @@
+.idea
+*.iml
+node_modules
+index.d.ts
+index.d.ts.map
+index.js
+index.js.map
+SpeechOutput.d.ts
+SpeechOutput.d.ts.map
+SpeechOutput.js
+SpeechOutput.js.map
+UseWordHighlighting.d.ts
+UseWordHighlighting.d.ts.map
+UseWordHighlighting.js
+UseWordHighlighting.js.map

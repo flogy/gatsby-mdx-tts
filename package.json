@@ -1,0 +1,36 @@
+{
+  "name": "gatsby-mdx-tts",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Florian Gyger",
+  "license": "ISC",
+  "keywords": [
+    "gatsby",
+    "gatsby-plugin",
+    "tts",
+    "text-to-speech",
+    "aws",
+    "polly",
+    "mdx",
+    "remark",
+    "markdown"
+  ],
+  "dependencies": {
+    "fs-extra": "^8.1.0",
+    "unist-util-find-after": "^3.0.0",
+    "unist-util-find-all-between": "^2.0.0",
+    "unist-util-visit": "^2.0.1"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^8.1.0",
+    "@types/react": "^16.9.20",
+    "prettier": "^1.19.1",
+    "react": "^16.12.0",
+    "typescript": "^3.7.5"
+  }
+}
