@@ -1,8 +1,7 @@
 import { Node } from "unist";
 import visit from "unist-util-visit";
 import path from "path";
-import { mkdirSync, readFileSync } from "fs";
-import { execSync } from "child_process";
+import { mkdirSync, readFileSync, writeFileSync } from "fs";
 import crypto from "crypto";
 import {
   copySync,
@@ -11,6 +10,10 @@ import {
   removeSync,
   writeJsonSync
 } from "fs-extra";
+import AWS from "aws-sdk";
+import { LexiconNameList, VoiceId } from "aws-sdk/clients/polly";
+const AwsConfig = AWS.config;
+import { AWSRegion } from "aws-sdk/clients/cur";
 
 // @ts-ignore
 import findAfter from "unist-util-find-after";
@@ -85,38 +88,158 @@ const generateTtsJson = (
   writeJsonSync(speechMarksJsonFilePath, json);
 };
 
-const generateTtsFiles = (
+const generateTtsFiles = async (
+  pluginOptions: PluginOptions,
   speechMarksFilePath: string,
   speechMarksJsonFilePath: string,
   audioFilePath: string,
   text: string
 ) => {
+  // TODO: move AWS and Polly initialization out of this loop but only initialize if actually some text has changed
+  AwsConfig.update({
+    region: pluginOptions.awsRegion,
+    ...(pluginOptions.awsCredentials && {
+      credentials: {
+        accessKeyId: pluginOptions.awsCredentials.accessKeyId,
+        secretAccessKey: pluginOptions.awsCredentials.secretAccessKey
+      }
+    })
+  });
+  const Polly = new AWS.Polly({ apiVersion: "2016-06-10" });
+
   removeSync(speechMarksFilePath);
   removeSync(speechMarksJsonFilePath);
   removeSync(audioFilePath);
 
   mkdirSync(cachePath, { recursive: true });
 
-  const pollyMaleMp3Command = `aws polly synthesize-speech --output-format mp3 --voice-id Hans --text-type ssml --text "<speak><amazon:auto-breaths frequency='medium'><amazon:effect phonation='soft'><prosody rate='70%'>${text}</prosody></amazon:effect></amazon:auto-breaths></speak>" ${audioFilePath}`;
-  const pollyMaleSpeechMarksCommand = `aws polly synthesize-speech --output-format json --speech-mark-types=word --voice-id Hans --text-type ssml --text "<speak><amazon:auto-breaths frequency='medium'><amazon:effect phonation='soft'><prosody rate='70%'>${text}</prosody></amazon:effect></amazon:auto-breaths></speak>" ${speechMarksFilePath}`;
+  let ssmlTagsBeforeText = "",
+    ssmlTagsAfterText = "";
+  if (pluginOptions.defaultSsmlTags) {
+    if (pluginOptions.defaultSsmlTags.indexOf("$SPEECH_OUTPUT_TEXT") === -1) {
+      throw new Error(
+        "If the 'defaultSsmlTags' option is defined it must contain the '$SPEECH_OUTPUT_TEXT' variable (see README file)."
+      );
+    }
+    const matches = pluginOptions.defaultSsmlTags.match(
+      /(.*)\$SPEECH_OUTPUT_TEXT(.*)/
+    );
+    if (!!matches) {
+      ssmlTagsBeforeText = matches[1];
+      ssmlTagsAfterText = matches[2];
+    } else {
+      throw new Error(
+        "Invalid 'defaultSsmlTags' option defined. Check README file for more information about the option."
+      );
+    }
+  }
+  const textWithSsmlTags = `<speak>${ssmlTagsBeforeText}${text}${ssmlTagsAfterText}</speak>`;
+
+  const pollyBaseConfiguration = {
+    VoiceId: pluginOptions.defaultVoiceId,
+    LexiconNames: pluginOptions.lexiconNames,
+    TextType: "ssml",
+    Text: textWithSsmlTags
+  };
 
   console.log("(Re-)generating file: " + audioFilePath);
-  execSync(pollyMaleMp3Command);
+  const mp3Data = await Polly.synthesizeSpeech({
+    OutputFormat: "mp3",
+    ...pollyBaseConfiguration
+  }).promise();
+  if (mp3Data.AudioStream instanceof Buffer) {
+    writeFileSync(audioFilePath, mp3Data.AudioStream);
+  }
 
   console.log("(Re-)generating file: " + speechMarksFilePath);
-  execSync(pollyMaleSpeechMarksCommand);
+  const jsonData = await Polly.synthesizeSpeech({
+    OutputFormat: "json",
+    SpeechMarkTypes: ["word"],
+    ...pollyBaseConfiguration
+  }).promise();
+  if (jsonData.AudioStream instanceof Buffer) {
+    writeFileSync(speechMarksFilePath, jsonData.AudioStream);
+  }
 
   console.log("(Re-)generating file: " + speechMarksJsonFilePath);
   generateTtsJson(speechMarksFilePath, speechMarksJsonFilePath, text);
+};
+
+const generateFiles = async (
+  filesToGenerate: FileToGenerate[],
+  pluginOptions: PluginOptions
+) => {
+  for (let i = 0; i < filesToGenerate.length; i++) {
+    const fileToGenerate = filesToGenerate[i];
+
+    const speechMarksFilePath = path.join(
+      cachePath,
+      `${fileToGenerate.speechOutputId}.marks`
+    );
+    const speechMarksJsonFilePath = path.join(
+      cachePath,
+      `${fileToGenerate.speechOutputId}.json`
+    );
+    const audioFilePath = path.join(
+      cachePath,
+      `${fileToGenerate.speechOutputId}.mp3`
+    );
+
+    const filesAlreadyExist =
+      pathExistsSync(speechMarksFilePath) &&
+      pathExistsSync(speechMarksJsonFilePath) &&
+      pathExistsSync(audioFilePath);
+    if (
+      !filesAlreadyExist ||
+      hasTextChanged(speechMarksJsonFilePath, fileToGenerate.text)
+    ) {
+      await generateTtsFiles(
+        pluginOptions,
+        speechMarksFilePath,
+        speechMarksJsonFilePath,
+        audioFilePath,
+        fileToGenerate.text
+      );
+    }
+
+    mkdirSync(publicPath, { recursive: true });
+    copySync(
+      speechMarksJsonFilePath,
+      path.join(publicPath, `${fileToGenerate.speechOutputId}.json`)
+    );
+    copySync(
+      audioFilePath,
+      path.join(publicPath, `${fileToGenerate.speechOutputId}.mp3`)
+    );
+  }
 };
 
 interface Parameters {
   markdownAST: Node;
 }
 
-interface PluginOptions {}
+interface PluginOptions {
+  awsRegion: AWSRegion;
+  defaultVoiceId: VoiceId;
+  awsCredentials?: {
+    accessKeyId: string;
+    secretAccessKey: string;
+  };
+  defaultSsmlTags?: string;
+  lexiconNames?: LexiconNameList;
+}
 
-module.exports = (parameters: Parameters, pluginOptions: PluginOptions) => {
+interface FileToGenerate {
+  speechOutputId: string;
+  text: string;
+}
+
+module.exports = async (
+  parameters: Parameters,
+  pluginOptions: PluginOptions
+) => {
+  const filesToGenerate: FileToGenerate[] = [];
+
   visit<Node>(
     parameters.markdownAST,
     isStartNode,
@@ -130,37 +253,17 @@ module.exports = (parameters: Parameters, pluginOptions: PluginOptions) => {
 
       const speechOutputId = extractSpeechOutputId(startNode);
       // TODO: also get voice parameter props and use them for generation (and check if they changed?)
-      const speechMarksFilePath = path.join(
-        cachePath,
-        `${speechOutputId}.marks`
-      );
-      const speechMarksJsonFilePath = path.join(
-        cachePath,
-        `${speechOutputId}.json`
-      );
-      const audioFilePath = path.join(cachePath, `${speechOutputId}.mp3`);
 
-      const filesAlreadyExist =
-        pathExistsSync(speechMarksFilePath) &&
-        pathExistsSync(speechMarksJsonFilePath) &&
-        pathExistsSync(audioFilePath);
-      if (!filesAlreadyExist || hasTextChanged(speechMarksJsonFilePath, text)) {
-        generateTtsFiles(
-          speechMarksFilePath,
-          speechMarksJsonFilePath,
-          audioFilePath,
-          text
-        );
-      }
-
-      mkdirSync(publicPath, { recursive: true });
-      copySync(
-        speechMarksJsonFilePath,
-        path.join(publicPath, `${speechOutputId}.json`)
-      );
-      copySync(audioFilePath, path.join(publicPath, `${speechOutputId}.mp3`));
+      filesToGenerate.push({
+        speechOutputId,
+        text
+      });
     }
   );
+
+  if (filesToGenerate.length > 0) {
+    await generateFiles(filesToGenerate, pluginOptions);
+  }
 
   return parameters.markdownAST;
 };
