@@ -70,4 +70,4 @@ const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = props => {
   );
 };
 
-export { SpeechOutput };
+export default SpeechOutput;

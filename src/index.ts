@@ -268,6 +268,4 @@ module.exports = async (
   return parameters.markdownAST;
 };
 
-export { SpeechOutput } from "./SpeechOutput";
-
 // TODO: make sure if a certain text is no longer existing, related files are deleted as well!
