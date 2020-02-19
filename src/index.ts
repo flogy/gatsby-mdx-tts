@@ -113,8 +113,8 @@ const generateTtsFiles = async (
 
   mkdirSync(cachePath, { recursive: true });
 
-  let ssmlTagsBeforeText = "",
-    ssmlTagsAfterText = "";
+  let ssmlTagsBeforeText = "";
+  let ssmlTagsAfterText = "";
   if (pluginOptions.defaultSsmlTags) {
     if (pluginOptions.defaultSsmlTags.indexOf("$SPEECH_OUTPUT_TEXT") === -1) {
       throw new Error(
