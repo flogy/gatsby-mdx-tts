@@ -1,7 +1,8 @@
 {
   "name": "gatsby-mdx-tts",
   "version": "0.0.1",
-  "description": "",
+  "description": "Adds speech output to your Gatsby site using Amazon Polly.",
+  "homepage": "https://github.com/flogy/gatsby-mdx-tts",
   "main": "index.js",
   "browser": "SpeechOutput.js",
   "scripts": {
