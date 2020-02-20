@@ -1,71 +1,52 @@
 import * as React from "react";
-import useWordHighlighting from "./UseWordHighlighting";
+import axios from "axios";
+import WordMarker from "./WordMarker";
+import useSpeechMarks, { SpeechMark } from "./UseSpeechMarks";
 
 interface SpeechOutputProps {
   id: string;
 }
 
 const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = props => {
-  const initialWordIndex = -1;
   const [isPlaying, setPlaying] = React.useState<boolean>(false);
-  const [wordIndex, setWordIndex] = React.useState<number>(initialWordIndex);
-  const intervalHandle = React.useRef<NodeJS.Timeout>();
+  const [speechMarks, setSpeechmarks] = React.useState<SpeechMark[]>([]);
   const soundFileHandle = React.useRef<HTMLAudioElement>();
-
-  const { totalWordCount, manipulatedChildren } = useWordHighlighting(
-    props.children,
-    wordIndex
-  );
-
-  const updateHighlightedWordIndex = () => {
-    setWordIndex(currentWordIndex => {
-      if (currentWordIndex + 1 === totalWordCount) {
-        return -1;
-      } else {
-        return currentWordIndex + 1;
-      }
-    });
-  };
 
   React.useEffect(() => {
     soundFileHandle.current = new Audio(`/tts/${props.id}.mp3`);
+    const fetchSpeechMarks = async () => {
+      const speechMarksJson: any = await axios.get(`/tts/${props.id}.json`);
+      setSpeechmarks(speechMarksJson.data.speechMarks);
+    };
+    fetchSpeechMarks();
   }, [props.id]);
 
-  React.useEffect(() => {
-    if (!isPlaying) {
-      intervalHandle.current && clearInterval(intervalHandle.current);
-      setWordIndex(initialWordIndex);
-      return;
-    }
-
-    updateHighlightedWordIndex();
-    intervalHandle.current = setInterval(updateHighlightedWordIndex, 500);
-
-    return () => {
-      intervalHandle.current && clearInterval(intervalHandle.current);
-    };
-  }, [isPlaying, totalWordCount]);
+  const { currentWordIndex, start, stop } = useSpeechMarks(speechMarks);
 
   const onPlayStopButtonClicked = () => {
-    if (!soundFileHandle.current) {
-      return;
-    }
     if (isPlaying) {
-      soundFileHandle.current.pause();
-      soundFileHandle.current.currentTime = 0;
+      stop();
+      setPlaying(false);
+      if (soundFileHandle.current) {
+        soundFileHandle.current.pause();
+        soundFileHandle.current.currentTime = 0;
+      }
     } else {
-      soundFileHandle.current.play();
+      start();
+      setPlaying(true);
+      if (soundFileHandle.current) {
+        soundFileHandle.current.play();
+      }
     }
-
-    setPlaying(!isPlaying);
   };
   return (
     <>
       <button onClick={onPlayStopButtonClicked}>
         {isPlaying ? "Stop" : "Play"}
       </button>
-      <p>Total words: {totalWordCount}</p>
-      <div style={{ backgroundColor: "#d7d7d7" }}>{manipulatedChildren}</div>
+      <WordMarker markedWordIndex={currentWordIndex}>
+        {props.children}
+      </WordMarker>
     </>
   );
 };

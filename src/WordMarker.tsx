@@ -1,15 +1,10 @@
-import * as React from "react";
+import React from "react";
 
-interface WordHighlighting {
-  totalWordCount: number;
-  manipulatedChildren: React.ReactNode;
+interface WordMarkerProps {
+  markedWordIndex: number;
 }
 
-const useWordHighlighting = (
-  children: React.ReactNode,
-  highlightedWordIndex: number
-): WordHighlighting => {
-  const [totalWordCount, setTotalWordCount] = React.useState<number>(0);
+const WordMarker: React.FunctionComponent<WordMarkerProps> = props => {
   const [manipulatedChildren, setManipulatedChildren] = React.useState<
     React.ReactNode
   >();
@@ -18,9 +13,7 @@ const useWordHighlighting = (
     const newChildren = [];
 
     let currentIndex = 0;
-    const highlightWordIfRequired = (
-      node: React.ReactNode
-    ): React.ReactNode => {
+    const markWordIfRequired = (node: React.ReactNode): React.ReactNode => {
       if (!node) {
         return;
       }
@@ -30,15 +23,15 @@ const useWordHighlighting = (
         const words = (node as string).split(" ");
 
         const doesNodeContainHighlightedWord =
-          highlightedWordIndex >= currentIndex &&
-          highlightedWordIndex < currentIndex + words.length;
+          props.markedWordIndex >= currentIndex &&
+          props.markedWordIndex < currentIndex + words.length;
 
         if (!doesNodeContainHighlightedWord) {
           currentIndex += words.length;
           return node;
         }
 
-        const wordIndexInsideNode = highlightedWordIndex - currentIndex;
+        const wordIndexInsideNode = props.markedWordIndex - currentIndex;
         const textBeforeHighlightedWord = words
           .slice(0, wordIndexInsideNode)
           .join(" ");
@@ -68,20 +61,16 @@ const useWordHighlighting = (
 
       const newSubChildren = React.Children.map(
         (node as React.ReactElement).props.children,
-        highlightWordIfRequired
+        markWordIfRequired
       );
       return React.cloneElement(node as React.ReactElement, [], newSubChildren);
     };
-    newChildren.push(React.Children.map(children, highlightWordIfRequired));
+    newChildren.push(React.Children.map(props.children, markWordIfRequired));
 
-    setTotalWordCount(currentIndex);
     setManipulatedChildren(newChildren);
-  }, [children, highlightedWordIndex]);
+  }, [props.children, props.markedWordIndex]);
 
-  return {
-    totalWordCount,
-    manipulatedChildren
-  };
+  return <>{manipulatedChildren}</>;
 };
 
-export default useWordHighlighting;
+export default WordMarker;

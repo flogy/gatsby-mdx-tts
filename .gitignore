@@ -9,7 +9,11 @@ SpeechOutput.d.ts
 SpeechOutput.d.ts.map
 SpeechOutput.js
 SpeechOutput.js.map
-UseWordHighlighting.d.ts
-UseWordHighlighting.d.ts.map
-UseWordHighlighting.js
-UseWordHighlighting.js.map
+UseSpeechMarks.d.ts
+UseSpeechMarks.d.ts.map
+UseSpeechMarks.js
+UseSpeechMarks.js.map
+WordMarker.d.ts
+WordMarker.d.ts.map
+WordMarker.js
+WordMarker.js.map
