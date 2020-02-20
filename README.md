@@ -1,6 +1,6 @@
 ![Logo](./img/gatsby-mdx-tts.svg)
 
-> 🗣 Easy **speech output** for your [Gatsby](https://www.gatsbyjs.org/) site powered by [Amazon Polly](https://aws.amazon.com/de/polly/).
+> 🗣 Easy **text-to-speech** for your [Gatsby](https://www.gatsbyjs.org/) site, powered by [Amazon Polly](https://aws.amazon.com/de/polly/).
 
 # gatsby-mdx-tts
 
