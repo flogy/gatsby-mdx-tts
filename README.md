@@ -58,10 +58,10 @@ There are two ways to configure your AWS credentials:
   "options": {
     "awsCredentials": {
       "accessKeyId": process.env.GATSBY_AWS_ACCESS_KEY_ID,
-      "secretAccessKey": process.env.GATSBY_AWS_SECRET_ACCESS_KEY
-    }
-  }
-}
+      "secretAccessKey": process.env.GATSBY_AWS_SECRET_ACCESS_KEY,
+    },
+  },
+},
 ```
 
 **Attention:** If you choose to go with option 2 it is highliy recommended to work with [environment variables](https://www.gatsbyjs.org/docs/environment-variables/) (as seen in the example above)! Do not directly paste your AWS credentials into your `gatsby-config.js` file and commit it to git as this would be a security issue!
