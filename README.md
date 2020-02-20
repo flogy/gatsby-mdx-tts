@@ -1,6 +1,6 @@
 # gatsby-mdx-tts
 
-Adds speech output to your [Gatsby](https://www.gatsbyjs.org/) site using [Amazon Polly](https://aws.amazon.com/de/polly/).
+🗣 Adds speech output to your [Gatsby](https://www.gatsbyjs.org/) site using [Amazon Polly](https://aws.amazon.com/de/polly/).
 
 ## Install
 
