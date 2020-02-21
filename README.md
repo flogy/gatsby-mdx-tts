@@ -12,6 +12,8 @@
 
 ![Demo Screencast](./img/demo.gif)
 
+Also check out the [example project](https://github.com/flogy/gatsby-mdx-tts-example)!
+
 ## Installation
 
 `npm install --save gatsby-mdx-tts`
