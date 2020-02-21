@@ -115,6 +115,12 @@ But this text will be playable. Please consider that:
 </SpeechOutput>
 ```
 
+## Contribute 🦸
+
+Contributions are more than welcome! I would love to see text-to-speech becoming a thing in the already very accessible Gatsby ecosystem. If agree and would like to join me on this mission it would be awesome to get in touch! 😊
+
+Please feel free to create, comment and of course solve some of the issues. To get started you can also go for the easier issues marked with the `good first issue` label if you like.
+
 ## License
 
 The [MIT License](LICENSE)
