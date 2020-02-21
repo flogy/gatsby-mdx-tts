@@ -22,7 +22,7 @@ const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = props => {
     fetchSpeechMarks();
   }, [props.id]);
 
-  const { currentWordIndex } = useSpeechMarks(speechMarks, isPlaying);
+  const currentWordIndex = useSpeechMarks(speechMarks, isPlaying);
 
   const onPlayStopButtonClicked = () => {
     if (isPlaying) {

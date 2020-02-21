@@ -8,14 +8,10 @@ export interface SpeechMark {
   value: string;
 }
 
-interface UseSpeechMarksReturnValue {
-  currentWordIndex: number;
-}
-
 const useSpeechMarks = (
   speechMarks: SpeechMark[],
   isPlaying: boolean
-): UseSpeechMarksReturnValue => {
+): number => {
   const noWordSelectedIndex = -1;
   const [currentWordIndex, setCurrentWordIndex] = React.useState<number>(
     noWordSelectedIndex
@@ -52,9 +48,7 @@ const useSpeechMarks = (
     timeoutHandles.current.forEach(clearTimeout);
   };
 
-  return {
-    currentWordIndex
-  };
+  return currentWordIndex;
 };
 
 export default useSpeechMarks;
