@@ -108,6 +108,23 @@
       }
     },
     {
+      "type": "jsx",
+      "value": "<SomeComponent/>",
+      "position": {
+        "start": {
+          "line": 5,
+          "column": 1,
+          "offset": 61
+        },
+        "end": {
+          "line": 5,
+          "column": 9,
+          "offset": 69
+        },
+        "indent": []
+      }
+    },
+    {
       "type": "paragraph",
       "children": [
         {
