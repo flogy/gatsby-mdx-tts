@@ -4,7 +4,7 @@
 
 # gatsby-mdx-tts
 
-![Pull requests are welcome!](https://img.shields.io/badge/PRs-welcome-brightgreen)
+[![Pull requests are welcome!](https://img.shields.io/badge/PRs-welcome-brightgreen)](#contribute-)
 ![npm](https://img.shields.io/npm/v/gatsby-mdx-tts)
 [![GitHub license](https://img.shields.io/github/license/flogy/gatsby-mdx-tts)](https://github.com/flogy/gatsby-mdx-tts/blob/master/LICENSE)
 
