@@ -22,7 +22,9 @@
 
 #### gatsby-config.js
 
-To include the plugin just add it to your `gatsby-plugin-mdx` configuration in the `gatsbyRemarkPlugin` section. Also, you need to include a couple of mandatory configurations:
+To include the plugin just add it to your `gatsby-plugin-mdx` configuration in the `gatsbyRemarkPlugin` section. In case you have multiple `gatsbyRemarkPlugins` configured is very important that you put the `gatsby-mdx-tts` plugin to **first position**!
+
+Also, you need to include a couple of mandatory configurations:
 
 ```javascript
 // In your gatsby-config.js
