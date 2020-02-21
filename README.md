@@ -85,3 +85,11 @@ There are two ways to configure your AWS credentials:
 - For an overview of all supported SSML tags check out the [supported SSML tags list](https://docs.aws.amazon.com/polly/latest/dg/supportedtags.html) in the AWS docs.
 - The surrounding `<speak>` tag is added automatically.
 - The variable `$SPEECH_OUTPUT_TEXT` will be replaced with the speech output text.
+
+## License
+
+The [MIT License](LICENSE)
+
+## Credits
+
+The _gatsby-mdx-tts_ library is maintained and sponsored by the Swiss web and mobile app development company [Florian Gyger Software](https://floriangyger.ch).

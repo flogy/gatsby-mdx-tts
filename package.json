@@ -6,14 +6,20 @@
   "bugs": {
     "url": "https://github.com/flogy/gatsby-mdx-tts/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flogy/gatsby-mdx-tts.git"
+  },
   "main": "index.js",
   "browser": "SpeechOutput.js",
   "scripts": {
     "build": "tsc -b",
-    "test": "jest"
+    "test": "jest",
+    "prepublish": "npm run build",
+    "postversion": "git push origin master --tags && npm publish"
   },
-  "author": "Florian Gyger",
-  "license": "ISC",
+  "author": "Florian Gyger <info@floriangyger.ch>",
+  "license": "MIT",
   "keywords": [
     "gatsby",
     "gatsby-plugin",
@@ -44,7 +50,7 @@
     "typescript": "^3.7.5"
   },
   "peerDependencies": {
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0"
+    "react": ">=16.12.0",
+    "react-dom": ">=16.12.0"
   }
 }
