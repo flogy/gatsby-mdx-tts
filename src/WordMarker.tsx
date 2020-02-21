@@ -20,7 +20,8 @@ const WordMarker: React.FunctionComponent<WordMarkerProps> = props => {
 
       const isTextNode = typeof node === "string";
       if (isTextNode) {
-        const words = (node as string).split(" ");
+        const whitespaceOrNewlineRegex = /[\s\n]/;
+        const words = (node as string).split(whitespaceOrNewlineRegex);
 
         const doesNodeContainHighlightedWord =
           props.markedWordIndex >= currentIndex &&
