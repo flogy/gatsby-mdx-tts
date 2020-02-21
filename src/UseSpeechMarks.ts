@@ -35,9 +35,16 @@ const useSpeechMarks = (
       setPlaying(true);
 
       timeoutHandles.current.push(
-        ...speechMarks.map((speechMark: SpeechMark, index: number) =>
-          setTimeout(() => setCurrentWordIndex(index), speechMark.time)
-        )
+        ...speechMarks
+          .filter((speechMark: SpeechMark) => speechMark.value.length > 0)
+          .filter((speechMark: SpeechMark) => {
+            const ssmlTagRegex = /<.*\/>/;
+            const isSsmlTag = speechMark.value.match(ssmlTagRegex) !== null;
+            return !isSsmlTag;
+          })
+          .map((speechMark: SpeechMark, index: number) =>
+            setTimeout(() => setCurrentWordIndex(index), speechMark.time)
+          )
       );
     }
   };
