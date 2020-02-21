@@ -1,7 +1,7 @@
 import * as React from "react";
 import axios from "axios";
-import WordMarker from "./WordMarker";
-import useSpeechMarks, { SpeechMark } from "./UseSpeechMarks";
+import useSpeechMarks, { SpeechMark } from "./internals/hooks/UseSpeechMarks";
+import WordMarker from "./internals/components/WordMarker";
 
 interface SpeechOutputProps {
   id: string;

@@ -1,8 +1,8 @@
 .idea
 *.iml
+internals
 node_modules
 
-/utils
 /index.d.ts
 /index.d.ts.map
 /index.js
@@ -11,11 +11,3 @@ node_modules
 /SpeechOutput.d.ts.map
 /SpeechOutput.js
 /SpeechOutput.js.map
-/UseSpeechMarks.d.ts
-/UseSpeechMarks.d.ts.map
-/UseSpeechMarks.js
-/UseSpeechMarks.js.map
-/WordMarker.d.ts
-/WordMarker.d.ts.map
-/WordMarker.js
-/WordMarker.js.map

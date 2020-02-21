@@ -15,7 +15,7 @@ const AwsConfig = AWS.config;
 import { AWSRegion } from "aws-sdk/clients/cur";
 import extractSpeechOutputBlocks, {
   SpeechOutputBlock
-} from "./utils/extractSpeechOutputBlocks";
+} from "./internals/utils/extractSpeechOutputBlocks";
 
 const cachePath = "./.cache/tts/";
 const publicPath = "./public/tts/";

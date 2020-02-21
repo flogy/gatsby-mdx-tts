@@ -1,5 +1,15 @@
 .idea
 *.iml
 img
+internals
 node_modules
 package-lock.json
+
+/index.d.ts
+/index.d.ts.map
+/index.js
+/index.js.map
+/SpeechOutput.d.ts
+/SpeechOutput.d.ts.map
+/SpeechOutput.js
+/SpeechOutput.js.map

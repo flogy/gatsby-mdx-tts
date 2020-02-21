@@ -1,12 +1,12 @@
 import { Node } from "unist";
 import visit from "unist-util-visit";
+import getSsmlFromMdAst from "./getSsmlFromMdAst";
 
 // @ts-ignore
 import findAfter from "unist-util-find-after";
 
 // @ts-ignore
 import between from "unist-util-find-all-between";
-import getSsmlFromMdAst from "./getSsmlFromMdAst";
 
 export interface SpeechOutputBlock {
   id: string;
