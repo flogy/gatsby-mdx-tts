@@ -1,5 +1,4 @@
-import { Node } from "unist";
-import visit from "unist-util-visit";
+import {Node} from 'unist';
 import path from "path";
 import { mkdirSync, readFileSync, writeFileSync } from "fs";
 import crypto from "crypto";
@@ -14,51 +13,10 @@ import AWS from "aws-sdk";
 import { LexiconNameList, VoiceId } from "aws-sdk/clients/polly";
 const AwsConfig = AWS.config;
 import { AWSRegion } from "aws-sdk/clients/cur";
-
-// @ts-ignore
-import findAfter from "unist-util-find-after";
-
-// @ts-ignore
-import between from "unist-util-find-all-between";
+import extractSpeechOutputBlocks, {SpeechOutputBlock} from './utils/extractSpeechOutputBlocks';
 
 const cachePath = "./.cache/tts/";
 const publicPath = "./public/tts/";
-
-const isStartNode = (node: unknown): node is Node => {
-  const value = (node as Node).value as string;
-  return (node as Node).type === "jsx" && value.startsWith("<SpeechOutput");
-};
-
-const isEndNode = (node: Node) => {
-  const value = node.value as string;
-  return node.type === "jsx" && value === "</SpeechOutput>";
-};
-
-const extractSpeechOutputId = (startNode: Node) => {
-  const value = startNode.value as string;
-  const regex = /<SpeechOutput id="(.*)">/;
-  const matches = value.match(regex);
-  if (matches) {
-    return matches[1];
-  } else {
-    throw new Error("Missing/invalid SpeechOutput ID prop found.");
-  }
-};
-
-const extractTextPartsFromNode = (node: Node) => {
-  const isTextNode = node.type === "text";
-  if (isTextNode) {
-    return node.value;
-  }
-
-  const hasChildrenDefinition = !!node.children;
-  if (!hasChildrenDefinition) {
-    return undefined;
-  }
-
-  const children: any = node.children;
-  return children.map(extractTextPartsFromNode);
-};
 
 const hasTextChanged = (speechMarksJsonFilePath: string, freshText: string) => {
   const freshTextHash = crypto
@@ -166,23 +124,23 @@ const generateTtsFiles = async (
 };
 
 const generateFiles = async (
-  filesToGenerate: FileToGenerate[],
+  speechOutputBlocks: SpeechOutputBlock[],
   pluginOptions: PluginOptions
 ) => {
-  for (let i = 0; i < filesToGenerate.length; i++) {
-    const fileToGenerate = filesToGenerate[i];
+  for (let i = 0; i < speechOutputBlocks.length; i++) {
+    const speechOutputBlock = speechOutputBlocks[i];
 
     const speechMarksFilePath = path.join(
       cachePath,
-      `${fileToGenerate.speechOutputId}.marks`
+      `${speechOutputBlock.id}.marks`
     );
     const speechMarksJsonFilePath = path.join(
       cachePath,
-      `${fileToGenerate.speechOutputId}.json`
+      `${speechOutputBlock.id}.json`
     );
     const audioFilePath = path.join(
       cachePath,
-      `${fileToGenerate.speechOutputId}.mp3`
+      `${speechOutputBlock.id}.mp3`
     );
 
     const filesAlreadyExist =
@@ -191,25 +149,25 @@ const generateFiles = async (
       pathExistsSync(audioFilePath);
     if (
       !filesAlreadyExist ||
-      hasTextChanged(speechMarksJsonFilePath, fileToGenerate.text)
+      hasTextChanged(speechMarksJsonFilePath, speechOutputBlock.text)
     ) {
       await generateTtsFiles(
         pluginOptions,
         speechMarksFilePath,
         speechMarksJsonFilePath,
         audioFilePath,
-        fileToGenerate.text
+        speechOutputBlock.text
       );
     }
 
     mkdirSync(publicPath, { recursive: true });
     copySync(
       speechMarksJsonFilePath,
-      path.join(publicPath, `${fileToGenerate.speechOutputId}.json`)
+      path.join(publicPath, `${speechOutputBlock.id}.json`)
     );
     copySync(
       audioFilePath,
-      path.join(publicPath, `${fileToGenerate.speechOutputId}.mp3`)
+      path.join(publicPath, `${speechOutputBlock.id}.mp3`)
     );
   }
 };
@@ -229,40 +187,14 @@ interface PluginOptions {
   lexiconNames?: LexiconNameList;
 }
 
-interface FileToGenerate {
-  speechOutputId: string;
-  text: string;
-}
-
 module.exports = async (
   parameters: Parameters,
   pluginOptions: PluginOptions
 ) => {
-  const filesToGenerate: FileToGenerate[] = [];
+  const speechOutputBlocks = extractSpeechOutputBlocks(parameters.markdownAST);
 
-  visit<Node>(
-    parameters.markdownAST,
-    isStartNode,
-    (startNode: Node, startNodeIndex: number, parent: Node) => {
-      const relatedEndNode = findAfter(parent, startNode, isEndNode);
-      const nodesToGetTextFrom = between(parent, startNode, relatedEndNode);
-      const text = nodesToGetTextFrom
-        .map(extractTextPartsFromNode)
-        .join(" ")
-        .replace(/\n/g, " ");
-
-      const speechOutputId = extractSpeechOutputId(startNode);
-      // TODO: also get voice parameter props and use them for generation (and check if they changed?)
-
-      filesToGenerate.push({
-        speechOutputId,
-        text
-      });
-    }
-  );
-
-  if (filesToGenerate.length > 0) {
-    await generateFiles(filesToGenerate, pluginOptions);
+  if (speechOutputBlocks.length > 0) {
+    await generateFiles(speechOutputBlocks, pluginOptions);
   }
 
   return parameters.markdownAST;

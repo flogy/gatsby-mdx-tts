@@ -3,11 +3,14 @@
   "version": "0.0.1",
   "description": "Adds speech output to your Gatsby site using Amazon Polly.",
   "homepage": "https://github.com/flogy/gatsby-mdx-tts",
+  "bugs": {
+    "url": "https://github.com/flogy/gatsby-mdx-tts/issues"
+  },
   "main": "index.js",
   "browser": "SpeechOutput.js",
   "scripts": {
     "build": "tsc -b",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "author": "Florian Gyger",
   "license": "ISC",
@@ -34,6 +37,7 @@
     "@types/fs-extra": "^8.1.0",
     "@types/react": "^16.9.20",
     "@types/react-dom": "^16.9.5",
+    "jest": "^25.1.0",
     "prettier": "^1.19.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",

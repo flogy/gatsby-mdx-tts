@@ -1,6 +1,8 @@
 .idea
 *.iml
 node_modules
+
+utils
 index.d.ts
 index.d.ts.map
 index.js
