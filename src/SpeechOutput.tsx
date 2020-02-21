@@ -14,6 +14,7 @@ const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = props => {
 
   React.useEffect(() => {
     soundFileHandle.current = new Audio(`/tts/${props.id}.mp3`);
+    soundFileHandle.current.addEventListener("ended", () => setPlaying(false));
     const fetchSpeechMarks = async () => {
       const speechMarksJson: any = await axios.get(`/tts/${props.id}.json`);
       setSpeechmarks(speechMarksJson.data.speechMarks);
@@ -21,18 +22,16 @@ const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = props => {
     fetchSpeechMarks();
   }, [props.id]);
 
-  const { currentWordIndex, start, stop } = useSpeechMarks(speechMarks);
+  const { currentWordIndex } = useSpeechMarks(speechMarks, isPlaying);
 
   const onPlayStopButtonClicked = () => {
     if (isPlaying) {
-      stop();
       setPlaying(false);
       if (soundFileHandle.current) {
         soundFileHandle.current.pause();
         soundFileHandle.current.currentTime = 0;
       }
     } else {
-      start();
       setPlaying(true);
       if (soundFileHandle.current) {
         soundFileHandle.current.play();
