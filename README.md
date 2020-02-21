@@ -4,6 +4,9 @@
 
 # gatsby-mdx-tts
 
+![npm](https://img.shields.io/npm/v/gatsby-mdx-tts)
+[![GitHub license](https://img.shields.io/github/license/flogy/gatsby-mdx-tts)](https://github.com/flogy/gatsby-mdx-tts/blob/master/LICENSE)
+
 ## Installation
 
 `npm install --save gatsby-mdx-tts`
