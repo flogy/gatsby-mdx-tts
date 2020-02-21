@@ -1,4 +1,4 @@
-import {Node} from 'unist';
+import { Node } from "unist";
 import path from "path";
 import { mkdirSync, readFileSync, writeFileSync } from "fs";
 import crypto from "crypto";
@@ -13,7 +13,9 @@ import AWS from "aws-sdk";
 import { LexiconNameList, VoiceId } from "aws-sdk/clients/polly";
 const AwsConfig = AWS.config;
 import { AWSRegion } from "aws-sdk/clients/cur";
-import extractSpeechOutputBlocks, {SpeechOutputBlock} from './utils/extractSpeechOutputBlocks';
+import extractSpeechOutputBlocks, {
+  SpeechOutputBlock
+} from "./utils/extractSpeechOutputBlocks";
 
 const cachePath = "./.cache/tts/";
 const publicPath = "./public/tts/";
@@ -138,10 +140,7 @@ const generateFiles = async (
       cachePath,
       `${speechOutputBlock.id}.json`
     );
-    const audioFilePath = path.join(
-      cachePath,
-      `${speechOutputBlock.id}.mp3`
-    );
+    const audioFilePath = path.join(cachePath, `${speechOutputBlock.id}.mp3`);
 
     const filesAlreadyExist =
       pathExistsSync(speechMarksFilePath) &&
