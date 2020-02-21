@@ -1,8 +1,10 @@
+![Logo](./img/gatsby-mdx-tts.svg)
+
+> 🗣 Easy **text-to-speech** for your [Gatsby](https://www.gatsbyjs.org/) site, powered by [Amazon Polly](https://aws.amazon.com/de/polly/).
+
 # gatsby-mdx-tts
 
-🗣 Adds speech output to your [Gatsby](https://www.gatsbyjs.org/) site using [Amazon Polly](https://aws.amazon.com/de/polly/).
-
-## Install
+## Installation
 
 `npm install --save gatsby-mdx-tts`
 

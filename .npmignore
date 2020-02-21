@@ -1,4 +1,5 @@
 .idea
 *.iml
+img
 node_modules
 src
