@@ -90,6 +90,25 @@ There are two ways to configure your AWS credentials:
 - The surrounding `<speak>` tag is added automatically.
 - The variable `$SPEECH_OUTPUT_TEXT` will be replaced with the speech output text.
 
+### Embed speech output in your MDX
+
+After configuring the plugin you can just add the `<SpeechOutput/>` component in your MDX files. The surrounded content will then be playable. You can add multiple speech output blocks to your content, but make sure the `id` is always set and **unique over all occurrences**.
+
+```markdown
+import SpeechOutput from "gatsby-mdx-tts"
+
+This text will be outside the speech output.
+
+<SpeechOutput id="inside">
+
+But this text will be playable. Please consider that:
+
+- The play button is added automatically.
+- The words in this text are marked one by one during text output.
+
+</SpeechOutput>
+```
+
 ## License
 
 The [MIT License](LICENSE)
