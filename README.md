@@ -98,7 +98,7 @@ There are two ways to configure your AWS credentials:
 
 ### Embed speech output in your MDX
 
-After configuring the plugin you can just add the `<SpeechOutput/>` component in your MDX files. The surrounded content will then be playable. You can add multiple speech output blocks to your content, but make sure the `id` is always set and **unique over all occurrences**.
+After configuring the plugin you can just add the `<SpeechOutput/>` component to your MDX files. The surrounded content will then be playable. You can add multiple speech output blocks to your content, but make sure the `id` is always set and **unique over all occurrences**. Also, it is important that there is an empty link between the `SpeechOutput` tags and the content to get it working.
 
 ```markdown
 import SpeechOutput from "gatsby-mdx-tts"
