@@ -1,6 +1,6 @@
 import { Node } from "unist";
 import visit from "unist-util-visit";
-import getSsmlFromMdAst from "./getSsmlFromMdAst";
+import getSsmlFromMdxAst from "./getSsmlFromMdxAst";
 
 // @ts-ignore
 import findAfter from "unist-util-find-after";
@@ -43,7 +43,7 @@ const extractSpeechOutputBlocks = (mdxAst: Node): SpeechOutputBlock[] => {
     (startNode: Node, startNodeIndex: number, parent: Node) => {
       const relatedEndNode = findAfter(parent, startNode, isEndNode);
       const nodesToGetTextFrom = between(parent, startNode, relatedEndNode);
-      const text = nodesToGetTextFrom.map(getSsmlFromMdAst).join("");
+      const text = nodesToGetTextFrom.map(getSsmlFromMdxAst).join("");
 
       const speechOutputId = extractSpeechOutputId(startNode);
       // TODO: also get voice parameter props and use them for generation (and check if they changed?)

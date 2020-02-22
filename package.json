@@ -49,6 +49,9 @@
     "prettier": "^1.19.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "remark": "^11.0.2",
+    "remark-mdx": "^1.5.7",
+    "to-vfile": "^6.0.0",
     "ts-jest": "^25.2.1",
     "typescript": "^3.8.2"
   },

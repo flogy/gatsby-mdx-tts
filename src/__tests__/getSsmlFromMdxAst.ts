@@ -1,14 +1,12 @@
-const testAst = require("./testAst");
-
+import loadMdxAstFromFile from "./utils/loadMdxAstFromFile";
 import extractSpeechOutputBlocks from "../internals/utils/extractSpeechOutputBlocks";
-import getSsmlFromMdAst from "../internals/utils/getSsmlFromMdAst";
+import getSsmlFromMdxAst from "../internals/utils/getSsmlFromMdxAst";
 
 it("should correctly extract speech output blocks from MDX AST", async () => {
-  const speechOutputBlocks = extractSpeechOutputBlocks(testAst);
-  expect(speechOutputBlocks.length).toEqual(1);
-  expect(speechOutputBlocks[0].id).toEqual("mdxText");
-  expect(speechOutputBlocks[0].text).toEqual(
-    "This is a test heading<break time='1s'/>And this is a test text. And one more sentence. We now include a link to the Google website.<break time='1s'/>Hope it all works. And if not:<break time='1s'/>We can do something about it.<break time='1s'/>Or we just ignore it.<break time='1s'/>"
+  const mdxAst = loadMdxAstFromFile("single-block.mdx");
+  const speechOutputBlock = extractSpeechOutputBlocks(mdxAst)[0];
+  expect(speechOutputBlock.text).toEqual(
+    "Inside<break time='1s'/>Now, this text is inside the block.<break time='1s'/>And this as well.<break time='1s'/>"
   );
 });
 
@@ -49,6 +47,6 @@ it("heading should end with a break SSML tag", () => {
       indent: []
     }
   };
-  const ssmlString = getSsmlFromMdAst(headingAst);
+  const ssmlString = getSsmlFromMdxAst(headingAst);
   expect(ssmlString).toEqual("Hello, world!<break time='1s'/>");
 });

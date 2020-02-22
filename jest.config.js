@@ -1,5 +1,6 @@
 module.exports = {
   roots: ["<rootDir>/src"],
+  modulePathIgnorePatterns: ["utils"],
   transform: {
     "^.+\\.tsx?$": "ts-jest"
   },
