@@ -20,13 +20,15 @@ import extractSpeechOutputBlocks, {
 const cachePath = "./.cache/tts/";
 const publicPath = "./public/tts/";
 
-const hasTextChanged = (speechMarksJsonFilePath: string, freshText: string) => {
-  const freshTextHash = crypto
+const getHash = (text: string) =>
+  crypto
     .createHash("md5")
-    .update(freshText)
+    .update(text)
     .digest("hex");
+
+const hasTextChanged = (speechMarksJsonFilePath: string, freshText: string) => {
   const textHashInFile = readJsonSync(speechMarksJsonFilePath).textHash;
-  return freshTextHash !== textHashInFile;
+  return getHash(freshText) !== textHashInFile;
 };
 
 const generateTtsJson = (
@@ -39,10 +41,7 @@ const generateTtsJson = (
     `[${speechMarksFileContent.replace(/\}\n\{/g, "},{")}]`
   );
   const json = {
-    textHash: crypto
-      .createHash("md5")
-      .update(text)
-      .digest("hex"),
+    textHash: getHash(text),
     speechMarks: speechMarksJson
   };
   writeJsonSync(speechMarksJsonFilePath, json);
