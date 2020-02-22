@@ -1,11 +1,10 @@
 const testAst = require("./testAst");
 
-// TODO: this used the build output as we need a JS file -> should use the source TS file though!
-const extractSpeechOutputBlocks = require("../../utils/extractSpeechOutputBlocks");
-const getSsmlFromMdAst = require("../../utils/getSsmlFromMdAst");
+import extractSpeechOutputBlocks from "../internals/utils/extractSpeechOutputBlocks";
+import getSsmlFromMdAst from "../internals/utils/getSsmlFromMdAst";
 
 it("should correctly extract speech output blocks from MDX AST", async () => {
-  const speechOutputBlocks = extractSpeechOutputBlocks.default(testAst);
+  const speechOutputBlocks = extractSpeechOutputBlocks(testAst);
   expect(speechOutputBlocks.length).toEqual(1);
   expect(speechOutputBlocks[0].id).toEqual("mdxText");
   expect(speechOutputBlocks[0].text).toEqual(
@@ -50,6 +49,6 @@ it("heading should end with a break SSML tag", () => {
       indent: []
     }
   };
-  const ssmlString = getSsmlFromMdAst.default(headingAst);
+  const ssmlString = getSsmlFromMdAst(headingAst);
   expect(ssmlString).toEqual("Hello, world!<break time='1s'/>");
 });
