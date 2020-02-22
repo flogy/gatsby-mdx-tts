@@ -1,7 +1,7 @@
 .idea
 *.iml
-internals
-node_modules
+/internals
+/node_modules
 
 /index.d.ts
 /index.d.ts.map
