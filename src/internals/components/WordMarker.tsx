@@ -7,7 +7,7 @@ interface WordMarkerProps {
 const WordMarker: React.FunctionComponent<WordMarkerProps> = props => {
   const [manipulatedChildren, setManipulatedChildren] = React.useState<
     React.ReactNode
-  >();
+  >(props.children);
 
   React.useEffect(() => {
     const newChildren = [];
