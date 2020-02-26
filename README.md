@@ -10,9 +10,11 @@
 
 ## Demo
 
+> Check out the [▶️ LIVE DEMO](https://gatsby-mdx-tts.netlify.com/curses-counter-curses-and-more)!
+
 ![Demo Screencast](./img/demo.gif)
 
-Also check out the [example project](https://github.com/flogy/gatsby-mdx-tts-example)!
+Also check out the [example project repository](https://github.com/flogy/gatsby-mdx-tts-example)!
 
 ## Installation
 
