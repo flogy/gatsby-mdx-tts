@@ -33,7 +33,6 @@
   ],
   "dependencies": {
     "aws-sdk": "^2.621.0",
-    "axios": "^0.19.2",
     "fs-extra": "^8.1.0",
     "unist-util-find-after": "^3.0.0",
     "unist-util-find-all-between": "^2.0.0",

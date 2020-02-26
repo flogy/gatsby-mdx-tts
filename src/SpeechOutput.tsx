@@ -1,5 +1,4 @@
 import * as React from "react";
-import axios from "axios";
 import useSpeechMarks, { SpeechMark } from "./internals/hooks/UseSpeechMarks";
 import WordMarker from "./internals/components/WordMarker";
 
@@ -16,8 +15,9 @@ const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = props => {
     soundFileHandle.current = new Audio(`/tts/${props.id}.mp3`);
     soundFileHandle.current.addEventListener("ended", () => setPlaying(false));
     const fetchSpeechMarks = async () => {
-      const speechMarksJson: any = await axios.get(`/tts/${props.id}.json`);
-      setSpeechmarks(speechMarksJson.data.speechMarks);
+      const response: any = await fetch(`/tts/${props.id}.json`);
+      const speechMarksJson: any = await response.json();
+      setSpeechmarks(speechMarksJson.speechMarks);
     };
     fetchSpeechMarks();
   }, [props.id]);
