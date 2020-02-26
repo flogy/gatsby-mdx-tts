@@ -15,6 +15,7 @@
     "build": "tsc -b",
     "test": "jest",
     "prepublishOnly": "npm run build",
+    "version": "auto-changelog --breaking-pattern \"BREAKING CHANGE:\" -p && git add CHANGELOG.md",
     "postversion": "git push origin master --tags && npm publish"
   },
   "author": "Florian Gyger <info@floriangyger.ch>",
@@ -43,6 +44,7 @@
     "@types/node": "^13.7.4",
     "@types/react": "^16.9.20",
     "@types/react-dom": "^16.9.5",
+    "auto-changelog": "^1.16.2",
     "jest": "^25.1.0",
     "prettier": "^1.19.1",
     "react": "^16.12.0",
