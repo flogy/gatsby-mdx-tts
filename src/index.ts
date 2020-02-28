@@ -1,23 +1,20 @@
 import { Node } from "unist";
 import path from "path";
-import { mkdirSync, readFileSync, writeFileSync } from "fs";
+import { mkdirSync, writeFileSync } from "fs";
 import crypto from "crypto";
-import {
-  copySync,
-  pathExistsSync,
-  readJsonSync,
-  removeSync,
-  writeJsonSync
-} from "fs-extra";
 import AWS from "aws-sdk";
 import { LexiconNameList, VoiceId } from "aws-sdk/clients/polly";
 const AwsConfig = AWS.config;
 import { AWSRegion } from "aws-sdk/clients/cur";
+import { Cache, Reporter } from "gatsby";
 import extractSpeechOutputBlocks, {
   SpeechOutputBlock
 } from "./internals/utils/extractSpeechOutputBlocks";
 
-const cachePath = "./.cache/tts/";
+const getSpeechMarksCacheKey = (speechOutputId: string) =>
+  `${speechOutputId}.json`;
+const getAudioCacheKey = (speechOutputId: string) => `${speechOutputId}.mp3`;
+
 const publicPath = "./public/tts/";
 
 const getHash = (text: string) =>
@@ -26,33 +23,17 @@ const getHash = (text: string) =>
     .update(text)
     .digest("hex");
 
-const hasTextChanged = (speechMarksJsonFilePath: string, freshText: string) => {
-  const textHashInFile = readJsonSync(speechMarksJsonFilePath).textHash;
+const hasTextChanged = (speechMarksJson: any, freshText: string) => {
+  const textHashInFile = speechMarksJson.textHash;
   return getHash(freshText) !== textHashInFile;
-};
-
-const generateTtsJson = (
-  speechMarksFilePath: string,
-  speechMarksJsonFilePath: string,
-  text: string
-) => {
-  const speechMarksFileContent = readFileSync(speechMarksFilePath, "utf-8");
-  const speechMarksJson = JSON.parse(
-    `[${speechMarksFileContent.replace(/\}\n\{/g, "},{")}]`
-  );
-  const json = {
-    textHash: getHash(text),
-    speechMarks: speechMarksJson
-  };
-  writeJsonSync(speechMarksJsonFilePath, json);
 };
 
 const generateTtsFiles = async (
   pluginOptions: PluginOptions,
-  speechMarksFilePath: string,
-  speechMarksJsonFilePath: string,
-  audioFilePath: string,
-  text: string
+  text: string,
+  cache: Cache,
+  reporter: Reporter,
+  speechOutputId: string
 ) => {
   // TODO: move AWS and Polly initialization out of this loop but only initialize if actually some text has changed
   AwsConfig.update({
@@ -65,12 +46,6 @@ const generateTtsFiles = async (
     })
   });
   const Polly = new AWS.Polly({ apiVersion: "2016-06-10" });
-
-  removeSync(speechMarksFilePath);
-  removeSync(speechMarksJsonFilePath);
-  removeSync(audioFilePath);
-
-  mkdirSync(cachePath, { recursive: true });
 
   let ssmlTagsBeforeText = "";
   let ssmlTagsAfterText = "";
@@ -101,77 +76,90 @@ const generateTtsFiles = async (
     Text: textWithSsmlTags
   };
 
-  console.log("(Re-)generating file: " + audioFilePath);
+  reporter.info(
+    `(Re-)generating mp3 for SpeechOutput with ID: ${speechOutputId}`
+  );
   const mp3Data = await Polly.synthesizeSpeech({
     OutputFormat: "mp3",
     ...pollyBaseConfiguration
   }).promise();
   if (mp3Data.AudioStream instanceof Buffer) {
-    writeFileSync(audioFilePath, mp3Data.AudioStream);
+    cache.cache.set(getAudioCacheKey(speechOutputId), mp3Data.AudioStream);
   }
 
-  console.log("(Re-)generating file: " + speechMarksFilePath);
+  reporter.info(
+    `(Re-)generating speech marks for SpeechOutput with ID: ${speechOutputId}`
+  );
   const jsonData = await Polly.synthesizeSpeech({
     OutputFormat: "json",
     SpeechMarkTypes: ["word"],
     ...pollyBaseConfiguration
   }).promise();
   if (jsonData.AudioStream instanceof Buffer) {
-    writeFileSync(speechMarksFilePath, jsonData.AudioStream);
+    const speechMarks = jsonData.AudioStream.toString();
+    const speechMarksJson = JSON.parse(
+      `[${speechMarks.replace(/\}\n\{/g, "},{")}]`
+    );
+    const json = {
+      textHash: getHash(text),
+      speechMarks: speechMarksJson
+    };
+    cache.cache.set(getSpeechMarksCacheKey(speechOutputId), json);
   }
-
-  console.log("(Re-)generating file: " + speechMarksJsonFilePath);
-  generateTtsJson(speechMarksFilePath, speechMarksJsonFilePath, text);
 };
 
 const generateFiles = async (
   speechOutputBlocks: SpeechOutputBlock[],
-  pluginOptions: PluginOptions
+  pluginOptions: PluginOptions,
+  cache: Cache,
+  reporter: Reporter
 ) => {
   for (let i = 0; i < speechOutputBlocks.length; i++) {
     const speechOutputBlock = speechOutputBlocks[i];
 
-    const speechMarksFilePath = path.join(
-      cachePath,
-      `${speechOutputBlock.id}.marks`
+    const speechMarks = await cache.cache.get(
+      getSpeechMarksCacheKey(speechOutputBlock.id)
     );
-    const speechMarksJsonFilePath = path.join(
-      cachePath,
-      `${speechOutputBlock.id}.json`
-    );
-    const audioFilePath = path.join(cachePath, `${speechOutputBlock.id}.mp3`);
+    const audio = await cache.cache.get(getAudioCacheKey(speechOutputBlock.id));
 
-    const filesAlreadyExist =
-      pathExistsSync(speechMarksFilePath) &&
-      pathExistsSync(speechMarksJsonFilePath) &&
-      pathExistsSync(audioFilePath);
+    const filesAlreadyExist = speechMarks && audio;
     if (
       !filesAlreadyExist ||
-      hasTextChanged(speechMarksJsonFilePath, speechOutputBlock.text)
+      hasTextChanged(speechMarks, speechOutputBlock.text)
     ) {
       await generateTtsFiles(
         pluginOptions,
-        speechMarksFilePath,
-        speechMarksJsonFilePath,
-        audioFilePath,
-        speechOutputBlock.text
+        speechOutputBlock.text,
+        cache,
+        reporter,
+        speechOutputBlock.id
       );
     }
 
-    mkdirSync(publicPath, { recursive: true });
-    copySync(
-      speechMarksJsonFilePath,
-      path.join(publicPath, `${speechOutputBlock.id}.json`)
+    const eventuallyRegeneratedSpeechMarks = await cache.cache.get(
+      getSpeechMarksCacheKey(speechOutputBlock.id)
     );
-    copySync(
-      audioFilePath,
-      path.join(publicPath, `${speechOutputBlock.id}.mp3`)
+
+    const eventuallyRegeneratedAudio = await cache.cache.get(
+      getAudioCacheKey(speechOutputBlock.id)
+    );
+
+    mkdirSync(publicPath, { recursive: true });
+    writeFileSync(
+      path.join(publicPath, `${speechOutputBlock.id}.mp3`),
+      eventuallyRegeneratedAudio
+    );
+    writeFileSync(
+      path.join(publicPath, `${speechOutputBlock.id}.json`),
+      JSON.stringify(eventuallyRegeneratedSpeechMarks)
     );
   }
 };
 
 interface Parameters {
   markdownAST: Node;
+  cache: Cache;
+  reporter: Reporter;
 }
 
 interface PluginOptions {
@@ -192,7 +180,12 @@ module.exports = async (
   const speechOutputBlocks = extractSpeechOutputBlocks(parameters.markdownAST);
 
   if (speechOutputBlocks.length > 0) {
-    await generateFiles(speechOutputBlocks, pluginOptions);
+    await generateFiles(
+      speechOutputBlocks,
+      pluginOptions,
+      parameters.cache,
+      parameters.reporter
+    );
   }
 
   return parameters.markdownAST;
