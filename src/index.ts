@@ -6,7 +6,7 @@ import AWS from "aws-sdk";
 import { LexiconNameList, VoiceId } from "aws-sdk/clients/polly";
 const AwsConfig = AWS.config;
 import { AWSRegion } from "aws-sdk/clients/cur";
-import { Cache, Reporter } from "gatsby";
+import { Actions, Cache, Reporter } from "gatsby";
 import extractSpeechOutputBlocks, {
   SpeechOutputBlock
 } from "./internals/utils/extractSpeechOutputBlocks";
@@ -14,8 +14,8 @@ import extractSpeechOutputBlocks, {
 const getSpeechMarksCacheKey = (speechOutputId: string) =>
   `${speechOutputId}.json`;
 const getAudioCacheKey = (speechOutputId: string) => `${speechOutputId}.mp3`;
-
-const publicPath = "./public/tts/";
+const getRelativeAudioPath = (speechOutputId: string) =>
+  `/tts/${speechOutputId}.mp3`;
 
 const getHash = (text: string) =>
   crypto
@@ -136,29 +136,50 @@ const generateFiles = async (
       );
     }
 
-    const eventuallyRegeneratedSpeechMarks = await cache.cache.get(
-      getSpeechMarksCacheKey(speechOutputBlock.id)
-    );
-
     const eventuallyRegeneratedAudio = await cache.cache.get(
       getAudioCacheKey(speechOutputBlock.id)
     );
-
-    mkdirSync(publicPath, { recursive: true });
-    writeFileSync(
-      path.join(publicPath, `${speechOutputBlock.id}.mp3`),
-      eventuallyRegeneratedAudio
-    );
-    writeFileSync(
-      path.join(publicPath, `${speechOutputBlock.id}.json`),
-      JSON.stringify(eventuallyRegeneratedSpeechMarks)
-    );
+    const audioFilePath = `./public${getRelativeAudioPath(
+      speechOutputBlock.id
+    )}`;
+    mkdirSync(path.dirname(audioFilePath), { recursive: true });
+    writeFileSync(audioFilePath, eventuallyRegeneratedAudio);
   }
+};
+
+const createNodesForSpeechOutputBlocks = async (
+  speechOutputBlocks: SpeechOutputBlock[],
+  parameters: Parameters
+) => {
+  await Promise.all(
+    speechOutputBlocks.map(async (speechOutputBlock: SpeechOutputBlock) => {
+      const speechMarks = (
+        await parameters.cache.cache.get(
+          getSpeechMarksCacheKey(speechOutputBlock.id)
+        )
+      ).speechMarks;
+      await parameters.actions.createNode({
+        speechOutputId: speechOutputBlock.id,
+        relativeAudioFilePath: getRelativeAudioPath(speechOutputBlock.id),
+        speechMarks,
+
+        id: parameters.createNodeId(speechOutputBlock.id),
+        children: [],
+        internal: {
+          contentDigest: parameters.createContentDigest(speechOutputBlock.text),
+          type: "SpeechOutput"
+        }
+      });
+    })
+  );
 };
 
 interface Parameters {
   markdownAST: Node;
   cache: Cache;
+  actions: Actions;
+  createNodeId: (input: string) => string;
+  createContentDigest: (input: string | object) => string;
   reporter: Reporter;
 }
 
@@ -187,6 +208,10 @@ module.exports = async (
       parameters.reporter
     );
   }
+
+  // TODO currently, nodes are only created if gatsby-plugin-mdx runs and does not get MDX from cache. If it gets it from cache because there are no changes in MDX files, we don't have any speech output nodes as a result!
+  // TODO: create a gatsby-node.js and check if there are cached speech outputs and if yes, create nodes from there.
+  await createNodesForSpeechOutputBlocks(speechOutputBlocks, parameters);
 
   return parameters.markdownAST;
 };

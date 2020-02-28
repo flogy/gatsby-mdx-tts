@@ -1,28 +1,35 @@
 import * as React from "react";
-import useSpeechMarks, { SpeechMark } from "./internals/hooks/UseSpeechMarks";
+import useSpeechMarks from "./internals/hooks/UseSpeechMarks";
 import WordMarker from "./internals/components/WordMarker";
+import { SpeechOutputDataContext } from "./SpeechOutputDataProvider";
 
 interface SpeechOutputProps {
   id: string;
 }
 
 const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = props => {
+  const speechOutputData = React.useContext(SpeechOutputDataContext);
+  const relevantSpeechOutputData = speechOutputData.find(
+    data => data.speechOutputId === props.id
+  );
+  if (!relevantSpeechOutputData) {
+    throw new Error(`Could not find speech output data for ID: ${props.id}`);
+  }
+
   const [isPlaying, setPlaying] = React.useState<boolean>(false);
-  const [speechMarks, setSpeechmarks] = React.useState<SpeechMark[]>([]);
   const soundFileHandle = React.useRef<HTMLAudioElement>();
 
   React.useEffect(() => {
-    soundFileHandle.current = new Audio(`/tts/${props.id}.mp3`);
+    soundFileHandle.current = new Audio(
+      relevantSpeechOutputData.relativeAudioFilePath
+    );
     soundFileHandle.current.addEventListener("ended", () => setPlaying(false));
-    const fetchSpeechMarks = async () => {
-      const response: any = await fetch(`/tts/${props.id}.json`);
-      const speechMarksJson: any = await response.json();
-      setSpeechmarks(speechMarksJson.speechMarks);
-    };
-    fetchSpeechMarks();
   }, [props.id]);
 
-  const currentWordIndex = useSpeechMarks(speechMarks, isPlaying);
+  const currentWordIndex = useSpeechMarks(
+    relevantSpeechOutputData.speechMarks,
+    isPlaying
+  );
 
   const onPlayStopButtonClicked = () => {
     if (isPlaying) {

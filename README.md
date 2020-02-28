@@ -100,7 +100,7 @@ There are two ways to configure your AWS credentials:
 
 ### Embed speech output in your MDX
 
-After configuring the plugin you can now add the `<SpeechOutput></SpeechOutput>` component to your MDX files. The surrounded content will then be playable. You can add multiple speech output blocks to your content, but make sure the `id` is always set to an **unique value over all occurrences**. Also, it is important that there is an empty line between the `SpeechOutput` tags and the content to get it working.
+After configuring the plugin you can now add the `<SpeechOutput></SpeechOutput>` component to your MDX files. It will then generate the speech marks and audio files for the content surrounded by this component, the next time you start your project. You can add multiple speech output blocks to your content, but make sure the `id` is always set to an **unique value over all occurrences**. Also, it is important that there is an empty line between the `SpeechOutput` tags and the content to get it working.
 
 ```markdown
 import SpeechOutput from "gatsby-mdx-tts/SpeechOutput"
@@ -116,6 +116,47 @@ But this text will be playable. Please consider that:
 
 </SpeechOutput>
 ```
+
+### Feed your speech output components some data
+
+After having the `SpeechOutput` components in place, we need to feed them with the required data.
+
+To do so, add this query to your template's page query to get all speech output data:
+
+```graphql
+allSpeechOutput {
+  edges {
+    node {
+      speechOutputId
+      relativeAudioFilePath
+      speechMarks {
+        time
+        type
+        start
+        end
+        value
+      }
+    }
+  }
+}
+```
+
+And then provide the resulting data to the `<SpeechOutput>` components in your pages using the library's `<SpeechOutputDataProvider>` like this:
+
+```jsx harmony
+import SpeechOutputDataProvider from "gatsby-mdx-tts/SpeechOutputDataProvider";
+import mapQueryResults from "gatsby-mdx-tts/mapQueryResults";
+
+<SpeechOutputDataProvider
+  speechOutputData={mapQueryResults(props.data.allSpeechOutput)}
+>
+  <MDXProvider>
+    <MDXRenderer>{props.data.mdx.body}</MDXRenderer>
+  </MDXProvider>
+</SpeechOutputDataProvider>;
+```
+
+There you go, your content should now be playable!
 
 ## Contribute 🦸
 

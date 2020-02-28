@@ -7,7 +7,15 @@
 /index.d.ts.map
 /index.js
 /index.js.map
+/mapQueryResults.d.ts
+/mapQueryResults.d.ts.map
+/mapQueryResults.js
+/mapQueryResults.js.map
 /SpeechOutput.d.ts
 /SpeechOutput.d.ts.map
 /SpeechOutput.js
 /SpeechOutput.js.map
+/SpeechOutputDataProvider.d.ts
+/SpeechOutputDataProvider.d.ts.map
+/SpeechOutputDataProvider.js
+/SpeechOutputDataProvider.js.map
