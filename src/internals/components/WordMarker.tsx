@@ -8,16 +8,11 @@ type MapFunction = (child: React.ReactNode) => React.ReactNode;
 
 const deepMap = (children: React.ReactNode, map: MapFunction): React.ReactNode => {
   return React.Children.map(children, child => {
-    if (!React.isValidElement(child)) {
-      return map(child);
-    }
-
-    if (child.props.children) {
-      child = React.cloneElement(child, {
-        children: deepMap(child.props.children, map)
+    if (React.isValidElement(child) && child.props.children) {
+      return React.cloneElement(child, {
+        children: deepMap(child.props.children, map),
       });
     }
-
     return map(child);
   });
 };
@@ -33,8 +28,15 @@ export const markChildText = (children: React.ReactNode, markedWordIndex: number
 
     const isText = typeof child === "string";
     if (isText) {
+      if ((child as string).trim().length === 0) {
+        return child;
+      }
+
+      const hasWhiteSpaceBeforeFirstWord = (child as string).match(/^\s/) !== null;
+      const hasWhiteSpaceAfterLastWord = (child as string).match(/.*\s$/) !== null;
+
       const whitespaceOrNewlineRegex = /[\s\n]/;
-      const words = (child as string).split(whitespaceOrNewlineRegex);
+      const words = (child as string).split(whitespaceOrNewlineRegex).filter(word => word.trim().length > 0);
 
       const doesChildContainHighlightedWord =
           markedWordIndex >= currentIndex &&
@@ -60,9 +62,9 @@ export const markChildText = (children: React.ReactNode, markedWordIndex: number
 
       currentIndex += words.length;
       return [
-        `${textBeforeHighlightedWord} `,
+          ...[(textBeforeHighlightedWord || hasWhiteSpaceBeforeFirstWord) && `${textBeforeHighlightedWord} `],
         highlightedWordComponent,
-        ` ${textAfterHighlightedWord}`
+          ...[(textAfterHighlightedWord || hasWhiteSpaceAfterLastWord) && ` ${textAfterHighlightedWord}`]
       ];
     }
     return child;
