@@ -4,6 +4,8 @@
 
 # gatsby-mdx-tts
 
+⚠️ This project is under heavy development, so breaking changes may occur on our road to a stable v1.0.0. Any bug reports and [contributions](#contribute-) will be highly appreciated.
+
 [![Pull requests are welcome!](https://img.shields.io/badge/PRs-welcome-brightgreen)](#contribute-)
 [![npm](https://img.shields.io/npm/v/gatsby-mdx-tts)](https://www.npmjs.com/package/gatsby-mdx-tts)
 [![GitHub license](https://img.shields.io/github/license/flogy/gatsby-mdx-tts)](https://github.com/flogy/gatsby-mdx-tts/blob/master/LICENSE)
