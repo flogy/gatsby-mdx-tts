@@ -171,13 +171,17 @@ interface PluginOptions {
   };
   defaultSsmlTags?: string;
   lexiconNames?: LexiconNameList;
+  speechOutputComponentName?: string;
 }
 
 module.exports = async (
   parameters: Parameters,
   pluginOptions: PluginOptions
 ) => {
-  const speechOutputBlocks = extractSpeechOutputBlocks(parameters.markdownAST);
+  const speechOutputBlocks = extractSpeechOutputBlocks(
+    parameters.markdownAST,
+    pluginOptions.speechOutputComponentName || "SpeechOutput"
+  );
 
   if (speechOutputBlocks.length > 0) {
     await generateFiles(

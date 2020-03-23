@@ -86,19 +86,24 @@ There are two ways to configure your AWS credentials:
 
 ### All configurations
 
-| Option            | Required | Example                                                                                                                |
-| ----------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `awsRegion`       | Yes      | `"us-east-1"`                                                                                                          |
-| `defaultVoiceId`  | Yes      | `"Justin"`                                                                                                             |
-| `awsCredentials`  | No       | `{ "accessKeyId": process.env.GATSBY_AWS_ACCESS_KEY_ID, "secretAccessKey": process.env.GATSBY_AWS_SECRET_ACCESS_KEY }` |
-| `defaultSsmlTags` | No       | `"<prosody rate='70%'>$SPEECH_OUTPUT_TEXT</prosody>"`                                                                  |
-| `lexiconNames`    | No       | `["LexA", "LexB"]`                                                                                                     |
+| Option                      | Required | Example                                                                                                                |
+| --------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `awsRegion`                 | Yes      | `"us-east-1"`                                                                                                          |
+| `defaultVoiceId`            | Yes      | `"Justin"`                                                                                                             |
+| `awsCredentials`            | No       | `{ "accessKeyId": process.env.GATSBY_AWS_ACCESS_KEY_ID, "secretAccessKey": process.env.GATSBY_AWS_SECRET_ACCESS_KEY }` |
+| `defaultSsmlTags`           | No       | `"<prosody rate='70%'>$SPEECH_OUTPUT_TEXT</prosody>"`                                                                  |
+| `lexiconNames`              | No       | `["LexA", "LexB"]`                                                                                                     |
+| `speechOutputComponentName` | No       | `"CustomComponent"`                                                                                                    |
 
 ##### About `defaultSsmlTags`:
 
 - For an overview of all supported SSML tags check out the [supported SSML tags list](https://docs.aws.amazon.com/polly/latest/dg/supportedtags.html) in the AWS docs.
 - The surrounding `<speak>` tag is added automatically.
 - The variable `$SPEECH_OUTPUT_TEXT` will be replaced with the speech output text.
+
+##### About `speechOutputComponentName`:
+
+If you want to use your own component to handle the generated speech output you can specify its name using the `speechOutputComponentName` option. The plugin will then use this instead of `SpeechOutput` to extract the text to be used for TTS generation. Like that you can customize the way speech output is handled. Find more information about this in the [customization chapter](#customize).
 
 ### Embed speech output in your MDX
 
@@ -118,6 +123,20 @@ But this text will be playable. Please consider that:
 
 </SpeechOutput>
 ```
+
+## Customize
+
+### Play button
+
+To customize the play button you can use the optional `SpeechOutput` component prop `customPlayButton`. Just pass in your custom play button component.
+
+If you choose to use a custom play button component, make sure it uses the `PlayButtonProps` exported from this plugin.
+
+### Speech output handling
+
+You can replace the whole speech output handling by using your own React component instead of the default `SpeechOutput` component. Like that, the TTS files are still generated during build phase but you can then do whatever you want with those files inside your component at runtime. To do so, use the `speechOutputComponentName` configuration option (see [About `speechOutputComponentName`](#about-speechoutputcomponentname)).
+
+If you choose to use your own component, make sure it uses the `SpeechOutputProps` exported from this plugin.
 
 ## Contribute 🦸
 

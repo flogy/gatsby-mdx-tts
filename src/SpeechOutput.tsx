@@ -2,8 +2,18 @@ import * as React from "react";
 import useSpeechMarks, { SpeechMark } from "./internals/hooks/UseSpeechMarks";
 import WordMarker from "./internals/components/WordMarker";
 
-interface SpeechOutputProps {
+export interface PlayButtonProps {
+  isPlaying: boolean;
+  onClick: () => void;
+}
+
+const DefaultPlayButton: React.FunctionComponent<PlayButtonProps> = props => (
+  <button onClick={props.onClick}>{props.isPlaying ? "Stop" : "Play"}</button>
+);
+
+export interface SpeechOutputProps {
   id: string;
+  customPlayButton?: React.FunctionComponent<PlayButtonProps>;
 }
 
 const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = props => {
@@ -38,11 +48,12 @@ const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = props => {
       }
     }
   };
+
+  const PlayButton = props.customPlayButton || DefaultPlayButton;
+
   return (
     <>
-      <button onClick={onPlayStopButtonClicked}>
-        {isPlaying ? "Stop" : "Play"}
-      </button>
+      <PlayButton isPlaying={isPlaying} onClick={onPlayStopButtonClicked} />
       <WordMarker markedWordIndex={currentWordIndex}>
         {props.children}
       </WordMarker>

@@ -13,19 +13,9 @@ export interface SpeechOutputBlock {
   text: string;
 }
 
-const isStartNode = (node: unknown): node is Node => {
-  const value = (node as Node).value as string;
-  return (node as Node).type === "jsx" && value.startsWith("<SpeechOutput");
-};
-
-const isEndNode = (node: Node) => {
-  const value = node.value as string;
-  return node.type === "jsx" && value === "</SpeechOutput>";
-};
-
-const extractSpeechOutputId = (startNode: Node) => {
+const extractSpeechOutputId = (startNode: Node, speechOutputComponentName: string) => {
   const value = startNode.value as string;
-  const regex = /<SpeechOutput id="(.*)">/;
+  const regex = new RegExp(`<${speechOutputComponentName}.*id="([^"]*)".*>`);
   const matches = value.match(regex);
   if (matches) {
     return matches[1];
@@ -34,18 +24,28 @@ const extractSpeechOutputId = (startNode: Node) => {
   }
 };
 
-const extractSpeechOutputBlocks = (mdxAst: Node): SpeechOutputBlock[] => {
+const extractSpeechOutputBlocks = (mdxAst: Node, speechOutputComponentName: string): SpeechOutputBlock[] => {
   const speechOutputBlocks: SpeechOutputBlock[] = [];
+
+  const isStartNode = (node: unknown): node is Node => {
+      const value = (node as Node).value as string;
+      return (node as Node).type === "jsx" && value.startsWith(`<${speechOutputComponentName}`);
+  };
+
+    const isEndNode = (node: Node) => {
+        const value = node.value as string;
+        return node.type === "jsx" && value === `</${speechOutputComponentName}>`;
+    };
 
   visit<Node>(
     mdxAst,
-    isStartNode,
+      isStartNode,
     (startNode: Node, startNodeIndex: number, parent: Node) => {
       const relatedEndNode = findAfter(parent, startNode, isEndNode);
       const nodesToGetTextFrom = between(parent, startNode, relatedEndNode);
       const text = nodesToGetTextFrom.map(getSsmlFromMdxAst).join("");
 
-      const speechOutputId = extractSpeechOutputId(startNode);
+      const speechOutputId = extractSpeechOutputId(startNode, speechOutputComponentName);
       // TODO: also get voice parameter props and use them for generation (and check if they changed?)
 
       speechOutputBlocks.push({

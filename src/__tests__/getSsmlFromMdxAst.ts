@@ -4,7 +4,10 @@ import getSsmlFromMdxAst from "../internals/utils/getSsmlFromMdxAst";
 
 it("should correctly extract speech output blocks from MDX AST", async () => {
   const mdxAst = loadMdxAstFromFile("single-block.mdx");
-  const speechOutputBlock = extractSpeechOutputBlocks(mdxAst)[0];
+  const speechOutputBlock = extractSpeechOutputBlocks(
+    mdxAst,
+    "SpeechOutput"
+  )[0];
   expect(speechOutputBlock.text).toEqual(
     "Inside<break time='1s'/>Now, this text is inside the block.<break time='1s'/>And this as well.<break time='1s'/>"
   );
