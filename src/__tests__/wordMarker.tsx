@@ -101,3 +101,42 @@ it("mark third word in formatted paragraph", async () => {
     "<p>Petrificus <em>lumos</em> <mark>lacarnum</mark><strong>legilimens</strong> legilimens <strong><em>quietus</em></strong> vipera <del>arania me patronum</del> reducio.</p>"
   );
 });
+
+it("mark first word in text with link", async () => {
+  const jsx = (
+    <p>
+      Would you click <a href="#">this link</a>?
+    </p>
+  );
+  executeWordMarkerTest(
+    jsx,
+    0,
+    '<p><mark>Would</mark> you click <a href="#">this link</a>?</p>'
+  );
+});
+
+it("mark last word in text with link", async () => {
+  const jsx = (
+    <p>
+      Would you click <a href="#">this link</a>?
+    </p>
+  );
+  executeWordMarkerTest(
+    jsx,
+    4,
+    '<p>Would you click <a href="#">this <mark>link</mark></a>?</p>'
+  );
+});
+
+it("mark word after text with link to check that question mark after link is not seen as word", async () => {
+  const jsx = (
+    <p>
+      Would you click <a href="#">this link</a>?
+    </p>
+  );
+  executeWordMarkerTest(
+    jsx,
+    5,
+    '<p>Would you click <a href="#">this link</a>?</p>'
+  );
+});

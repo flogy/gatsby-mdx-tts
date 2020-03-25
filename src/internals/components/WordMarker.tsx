@@ -32,6 +32,13 @@ export const markChildText = (children: React.ReactNode, markedWordIndex: number
         return child;
       }
 
+      const isOnlySpecialCharacters = (child as string)
+        .trim()
+        .match(/^[!@#$%^&*(),.?"'`:{}|<>\-_]+$/);
+      if (isOnlySpecialCharacters) {
+        return child;
+      }
+
       const hasWhiteSpaceBeforeFirstWord = (child as string).match(/^\s/) !== null;
       const hasWhiteSpaceAfterLastWord = (child as string).match(/.*\s$/) !== null;
 
@@ -62,9 +69,9 @@ export const markChildText = (children: React.ReactNode, markedWordIndex: number
 
       currentIndex += words.length;
       return [
-          ...[(textBeforeHighlightedWord || hasWhiteSpaceBeforeFirstWord) && `${textBeforeHighlightedWord} `],
+        ...[`${hasWhiteSpaceBeforeFirstWord ? " " : ""}${textBeforeHighlightedWord ? `${textBeforeHighlightedWord} ` : ""}`],
         highlightedWordComponent,
-          ...[(textAfterHighlightedWord || hasWhiteSpaceAfterLastWord) && ` ${textAfterHighlightedWord}`]
+        ...[`${textAfterHighlightedWord ? ` ${textAfterHighlightedWord}` : ""}${hasWhiteSpaceAfterLastWord ? " " : ""}`],
       ];
     }
     return child;
