@@ -8,13 +8,21 @@ export interface SpeechMark {
   value: string;
 }
 
+interface CurrentWord {
+  index: number;
+  word: string;
+}
+
 const useSpeechMarks = (
   speechMarks: SpeechMark[],
   isPlaying: boolean
-): number => {
-  const noWordSelectedIndex = -1;
-  const [currentWordIndex, setCurrentWordIndex] = React.useState<number>(
-    noWordSelectedIndex
+): CurrentWord => {
+  const noWordSelected: CurrentWord = {
+    index: -1,
+    word: ""
+  };
+  const [currentWord, setCurrentWord] = React.useState<CurrentWord>(
+      noWordSelected
   );
   const timeoutHandles = React.useRef<NodeJS.Timeout[]>([]);
 
@@ -38,17 +46,20 @@ const useSpeechMarks = (
           return !isSsmlTag;
         })
         .map((speechMark: SpeechMark, index: number) =>
-          setTimeout(() => setCurrentWordIndex(index), speechMark.time)
+          setTimeout(() => setCurrentWord({
+            index,
+            word: speechMark.value
+          }), speechMark.time)
         )
     );
   };
 
   const stop = () => {
-    setCurrentWordIndex(noWordSelectedIndex);
+    setCurrentWord(noWordSelected);
     timeoutHandles.current.forEach(clearTimeout);
   };
 
-  return currentWordIndex;
+  return currentWord;
 };
 
 export default useSpeechMarks;

@@ -14,6 +14,7 @@ const DefaultPlayButton: React.FunctionComponent<PlayButtonProps> = props => (
 export interface SpeechOutputProps {
   id: string;
   customPlayButton?: React.FunctionComponent<PlayButtonProps>;
+  onWordMarked?: (word: string) => void;
 }
 
 const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = props => {
@@ -32,7 +33,12 @@ const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = props => {
     fetchSpeechMarks();
   }, [props.id]);
 
-  const currentWordIndex = useSpeechMarks(speechMarks, isPlaying);
+  const currentWord = useSpeechMarks(speechMarks, isPlaying);
+
+  React.useEffect(
+    () => props.onWordMarked && props.onWordMarked(currentWord.word),
+    [currentWord, props.onWordMarked]
+  );
 
   const onPlayStopButtonClicked = () => {
     if (isPlaying) {
@@ -54,7 +60,7 @@ const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = props => {
   return (
     <>
       <PlayButton isPlaying={isPlaying} onClick={onPlayStopButtonClicked} />
-      <WordMarker markedWordIndex={currentWordIndex}>
+      <WordMarker markedWordIndex={currentWord.index}>
         {props.children}
       </WordMarker>
     </>

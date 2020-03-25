@@ -138,6 +138,14 @@ You can replace the whole speech output handling by using your own React compone
 
 If you choose to use your own component, make sure it uses the `SpeechOutputProps` exported from this plugin.
 
+## Event listeners
+
+To be able to react to certain events you can register the following event listeners:
+
+### `onWordMarked`
+
+When a speech output is played the spoken words are highlighted in the text simultaneously. The `onWordMarked` listener is called as soon as a new word is highlighted and delivers the currently highlighted word as a string. When no word is highlighted (anymore) the string is empty.
+
 ## Contribute 🦸
 
 Contributions are more than welcome! I would love to see text-to-speech becoming a thing in the already very accessible Gatsby ecosystem. If agree and would like to join me on this mission it would be awesome to get in touch! 😊
