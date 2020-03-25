@@ -1,9 +1,9 @@
-.idea
+/.idea
 *.iml
-img
-internals
-node_modules
-package-lock.json
+/img
+/internals
+/node_modules
+/package-lock.json
 
 /index.d.ts
 /index.d.ts.map

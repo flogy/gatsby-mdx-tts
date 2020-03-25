@@ -6,18 +6,24 @@ interface WordMarkerProps {
 
 type MapFunction = (child: React.ReactNode) => React.ReactNode;
 
-const deepMap = (children: React.ReactNode, map: MapFunction): React.ReactNode => {
+const deepMap = (
+  children: React.ReactNode,
+  map: MapFunction
+): React.ReactNode => {
   return React.Children.map(children, child => {
     if (React.isValidElement(child) && child.props.children) {
       return React.cloneElement(child, {
-        children: deepMap(child.props.children, map),
+        children: deepMap(child.props.children, map)
       });
     }
     return map(child);
   });
 };
 
-export const markChildText = (children: React.ReactNode, markedWordIndex: number): React.ReactNode => {
+export const markChildText = (
+  children: React.ReactNode,
+  markedWordIndex: number
+): React.ReactNode => {
   const newChildren = [];
 
   let currentIndex = 0;
@@ -39,15 +45,19 @@ export const markChildText = (children: React.ReactNode, markedWordIndex: number
         return child;
       }
 
-      const hasWhiteSpaceBeforeFirstWord = (child as string).match(/^\s/) !== null;
-      const hasWhiteSpaceAfterLastWord = (child as string).match(/.*\s$/) !== null;
+      const hasWhiteSpaceBeforeFirstWord =
+        (child as string).match(/^\s/) !== null;
+      const hasWhiteSpaceAfterLastWord =
+        (child as string).match(/.*\s$/) !== null;
 
       const whitespaceOrNewlineRegex = /[\s\n]/;
-      const words = (child as string).split(whitespaceOrNewlineRegex).filter(word => word.trim().length > 0);
+      const words = (child as string)
+        .split(whitespaceOrNewlineRegex)
+        .filter(word => word.trim().length > 0);
 
       const doesChildContainHighlightedWord =
-          markedWordIndex >= currentIndex &&
-          markedWordIndex < currentIndex + words.length;
+        markedWordIndex >= currentIndex &&
+        markedWordIndex < currentIndex + words.length;
 
       if (!doesChildContainHighlightedWord) {
         currentIndex += words.length;
@@ -56,22 +66,30 @@ export const markChildText = (children: React.ReactNode, markedWordIndex: number
 
       const wordIndexInsideChild = markedWordIndex - currentIndex;
       const textBeforeHighlightedWord = words
-          .slice(0, wordIndexInsideChild)
-          .join(" ");
+        .slice(0, wordIndexInsideChild)
+        .join(" ");
       const textAfterHighlightedWord = words
-          .slice(wordIndexInsideChild + 1)
-          .join(" ");
+        .slice(wordIndexInsideChild + 1)
+        .join(" ");
       const highlightedWordComponent = React.createElement(
-          "mark",
-          null,
-          words[wordIndexInsideChild]
+        "mark",
+        null,
+        words[wordIndexInsideChild]
       );
 
       currentIndex += words.length;
       return [
-        ...[`${hasWhiteSpaceBeforeFirstWord ? " " : ""}${textBeforeHighlightedWord ? `${textBeforeHighlightedWord} ` : ""}`],
+        ...[
+          `${hasWhiteSpaceBeforeFirstWord ? " " : ""}${
+            textBeforeHighlightedWord ? `${textBeforeHighlightedWord} ` : ""
+          }`
+        ],
         highlightedWordComponent,
-        ...[`${textAfterHighlightedWord ? ` ${textAfterHighlightedWord}` : ""}${hasWhiteSpaceAfterLastWord ? " " : ""}`],
+        ...[
+          `${textAfterHighlightedWord ? ` ${textAfterHighlightedWord}` : ""}${
+            hasWhiteSpaceAfterLastWord ? " " : ""
+          }`
+        ]
       ];
     }
     return child;
@@ -87,7 +105,9 @@ const WordMarker: React.FunctionComponent<WordMarkerProps> = props => {
   >(props.children);
 
   React.useEffect(() => {
-    setManipulatedChildren(markChildText(props.children, props.markedWordIndex));
+    setManipulatedChildren(
+      markChildText(props.children, props.markedWordIndex)
+    );
   }, [props.children, props.markedWordIndex]);
 
   return <>{manipulatedChildren}</>;

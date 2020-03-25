@@ -22,7 +22,7 @@ const useSpeechMarks = (
     word: ""
   };
   const [currentWord, setCurrentWord] = React.useState<CurrentWord>(
-      noWordSelected
+    noWordSelected
   );
   const timeoutHandles = React.useRef<NodeJS.Timeout[]>([]);
 
@@ -46,10 +46,14 @@ const useSpeechMarks = (
           return !isSsmlTag;
         })
         .map((speechMark: SpeechMark, index: number) =>
-          setTimeout(() => setCurrentWord({
-            index,
-            word: speechMark.value
-          }), speechMark.time)
+          setTimeout(
+            () =>
+              setCurrentWord({
+                index,
+                word: speechMark.value
+              }),
+            speechMark.time
+          )
         )
     );
   };
