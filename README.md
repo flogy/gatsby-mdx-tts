@@ -82,7 +82,7 @@ There are two ways to configure your AWS credentials:
 },
 ```
 
-**Attention:** If you choose to go with option 2 it is highliy recommended to work with [environment variables](https://www.gatsbyjs.org/docs/environment-variables/) (as seen in the example above)! Do not directly paste your AWS credentials into your `gatsby-config.js` file and commit it to git as this would be a security issue!
+**Attention:** If you choose to go with option 2 it is highly recommended to work with [environment variables](https://www.gatsbyjs.org/docs/environment-variables/) (as seen in the example above)! Do not directly paste your AWS credentials into your `gatsby-config.js` file and commit it to git as this would be a security issue!
 
 ### All configurations
 
