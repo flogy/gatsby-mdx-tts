@@ -1,4 +1,5 @@
 import * as React from "react";
+import isomorphicFetch from "isomorphic-fetch";
 import useSpeechMarks, { SpeechMark } from "./internals/hooks/UseSpeechMarks";
 import WordMarker from "./internals/components/WordMarker";
 
@@ -26,7 +27,7 @@ const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = props => {
     soundFileHandle.current = new Audio(`/tts/${props.id}.mp3`);
     soundFileHandle.current.addEventListener("ended", () => setPlaying(false));
     const fetchSpeechMarks = async () => {
-      const response: any = await fetch(`/tts/${props.id}.json`);
+      const response: any = await isomorphicFetch(`/tts/${props.id}.json`);
       const speechMarksJson: any = await response.json();
       setSpeechmarks(speechMarksJson.speechMarks);
     };
