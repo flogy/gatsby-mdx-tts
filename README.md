@@ -26,7 +26,7 @@ Also check out the [example project repository](https://github.com/flogy/gatsby-
 
 ### Prerequisites
 
-1. In order to use this plugin you need an [AWS account](https://portal.aws.amazon.com/billing/signup). You can use the text-to-speech service for free for the first 12 months (up to a couple million words to be precise).
+1. In order to use this plugin you need an [AWS account](https://portal.aws.amazon.com/billing/signup). You can use the text-to-speech service ([AWS Polly](https://aws.amazon.com/de/polly/)) for free for the first 12 months (up to a couple million words to be precise).
 
    **Attention:** If you exceed the limits or use it after your initial free tier, using this plugin will generate costs in your AWS account!
 
