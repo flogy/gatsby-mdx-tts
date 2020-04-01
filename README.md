@@ -72,11 +72,11 @@ There are two ways to configure your AWS credentials:
 ```javascript
 // In your gatsby-config.js
 {
-  "resolve": "gatsby-mdx-tts",
-  "options": {
-    "awsCredentials": {
-      "accessKeyId": process.env.GATSBY_AWS_ACCESS_KEY_ID,
-      "secretAccessKey": process.env.GATSBY_AWS_SECRET_ACCESS_KEY,
+  resolve: "gatsby-mdx-tts",
+  options: {
+    awsCredentials: {
+      accessKeyId: process.env.GATSBY_AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.GATSBY_AWS_SECRET_ACCESS_KEY,
     },
   },
 },
