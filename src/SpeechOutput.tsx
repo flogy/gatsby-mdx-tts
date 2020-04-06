@@ -2,6 +2,7 @@ import * as React from "react";
 import isomorphicFetch from "isomorphic-fetch";
 import useSpeechMarks, { SpeechMark } from "./internals/hooks/UseSpeechMarks";
 import WordMarker from "./internals/components/WordMarker";
+import useSound, { UseSoundHookSignature } from "./internals/hooks/UseSound";
 
 export interface PlayButtonProps {
   isPlaying: boolean;
@@ -16,16 +17,16 @@ export interface SpeechOutputProps {
   id: string;
   customPlayButton?: React.FunctionComponent<PlayButtonProps>;
   onWordMarked?: (word: string) => void;
+  useCustomSoundHook?: UseSoundHookSignature;
 }
 
 const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = props => {
-  const [isPlaying, setPlaying] = React.useState<boolean>(false);
+  const useSoundHook: UseSoundHookSignature =
+    props.useCustomSoundHook || useSound;
+  const [isPlaying, setPlaying] = useSoundHook(`/tts/${props.id}.mp3`);
   const [speechMarks, setSpeechmarks] = React.useState<SpeechMark[]>([]);
-  const soundFileHandle = React.useRef<HTMLAudioElement>();
 
   React.useEffect(() => {
-    soundFileHandle.current = new Audio(`/tts/${props.id}.mp3`);
-    soundFileHandle.current.addEventListener("ended", () => setPlaying(false));
     const fetchSpeechMarks = async () => {
       const response: any = await isomorphicFetch(`/tts/${props.id}.json`);
       const speechMarksJson: any = await response.json();
@@ -41,20 +42,7 @@ const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = props => {
     [currentWord, props.onWordMarked]
   );
 
-  const onPlayStopButtonClicked = () => {
-    if (isPlaying) {
-      setPlaying(false);
-      if (soundFileHandle.current) {
-        soundFileHandle.current.pause();
-        soundFileHandle.current.currentTime = 0;
-      }
-    } else {
-      setPlaying(true);
-      if (soundFileHandle.current) {
-        soundFileHandle.current.play();
-      }
-    }
-  };
+  const onPlayStopButtonClicked = () => setPlaying(!isPlaying);
 
   const PlayButton = props.customPlayButton || DefaultPlayButton;
 

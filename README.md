@@ -138,6 +138,10 @@ You can replace the whole speech output handling by using your own React compone
 
 If you choose to use your own component, make sure it uses the `SpeechOutputProps` exported from this plugin.
 
+### Custom `useSound` hook
+
+In case you would like to manage playing sounds by yourself you can pass an optional hook to the `useCustomSoundHook` prop of the `SpeechOutput` component. It has to follow the `UseSoundHookSignature` type as exported from `UseSound.ts` (which is the default sound hook).
+
 ## Event listeners
 
 To be able to react to certain events you can register the following event listeners:
