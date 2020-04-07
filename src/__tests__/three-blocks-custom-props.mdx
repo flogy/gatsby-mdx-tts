@@ -1,0 +1,27 @@
+import SpeechOutput from "gatsby-mdx-tts"
+
+# Outside
+
+This is outside the speech output blocks.
+
+<SpeechOutput id="block-1" voiceId="Marlene">
+
+This is inside block 1.
+
+</SpeechOutput>
+
+<SpeechOutput id="block-2" ssmlTags="<prosody rate='70%'>$SPEECH_OUTPUT_TEXT</prosody>">
+
+This is inside block 2.
+
+</SpeechOutput>
+
+<CustomComponent />
+
+This is outside the speech output blocks, too.
+
+<SpeechOutput voiceId="Hans" ssmlTags="<prosody rate='70%'>$SPEECH_OUTPUT_TEXT</prosody>" id="block-3" lexiconNames={['LexA', 'LexB']}>
+
+This is inside block 3.
+
+</SpeechOutput>

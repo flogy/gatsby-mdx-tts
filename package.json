@@ -34,6 +34,8 @@
     "markdown"
   ],
   "dependencies": {
+    "acorn": "^7.1.1",
+    "acorn-jsx": "^5.2.0",
     "aws-sdk": "^2.654.0",
     "isomorphic-fetch": "^2.2.1",
     "unist-util-find-after": "^3.0.0",

@@ -92,7 +92,7 @@ There are two ways to configure your AWS credentials:
 | `defaultVoiceId`            | Yes      | `"Justin"`                                                                                                             |
 | `awsCredentials`            | No       | `{ "accessKeyId": process.env.GATSBY_AWS_ACCESS_KEY_ID, "secretAccessKey": process.env.GATSBY_AWS_SECRET_ACCESS_KEY }` |
 | `defaultSsmlTags`           | No       | `"<prosody rate='70%'>$SPEECH_OUTPUT_TEXT</prosody>"`                                                                  |
-| `lexiconNames`              | No       | `["LexA", "LexB"]`                                                                                                     |
+| `defaultLexiconNames`       | No       | `["LexA", "LexB"]`                                                                                                     |
 | `speechOutputComponentName` | No       | `"CustomComponent"`                                                                                                    |
 
 ##### About `defaultSsmlTags`:
@@ -125,6 +125,25 @@ But this text will be playable. Please consider that:
 ```
 
 ## Customize
+
+### Define individual speech output parameters
+
+To define speech output parameters for individual `<SpeechOutput>` components you can pass them as props. This will override the eventually configured default parameters.
+
+| Prop           | Required | Example                                               |
+| -------------- | -------- | ----------------------------------------------------- |
+| `id`           | Yes      | `"my-individual-speech-output"`                       |
+| `lexiconNames` | No       | `['LexA', 'LexB']`                                    |
+| `ssmlTags`     | No       | `"<prosody rate='70%'>$SPEECH_OUTPUT_TEXT</prosody>"` |
+| `voiceId`      | No       | `"Hans"`                                              |
+
+#### Example
+
+```markdown
+<SpeechOutput voiceId="Hans" ssmlTags="<prosody rate='70%'>\$SPEECH_OUTPUT_TEXT</prosody>" id="my-individual-speech-output" lexiconNames={['LexA', 'LexB']}>
+```
+
+As you can see the order of the props does not matter. However, it is important to pass the props in the correct types (e.g. do not pass the `lexiconNames` as a string but as an array).
 
 ### Play button
 

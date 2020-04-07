@@ -1,5 +1,6 @@
 import * as React from "react";
 import isomorphicFetch from "isomorphic-fetch";
+import { LexiconNameList, VoiceId } from "aws-sdk/clients/polly";
 import useSpeechMarks, { SpeechMark } from "./internals/hooks/UseSpeechMarks";
 import WordMarker from "./internals/components/WordMarker";
 import useSound, { UseSoundHookSignature } from "./internals/hooks/UseSound";
@@ -15,6 +16,9 @@ const DefaultPlayButton: React.FunctionComponent<PlayButtonProps> = props => (
 
 export interface SpeechOutputProps {
   id: string;
+  lexiconNames?: LexiconNameList;
+  ssmlTags?: string;
+  voiceId?: VoiceId;
   customPlayButton?: React.FunctionComponent<PlayButtonProps>;
   onWordMarked?: (word: string) => void;
   useCustomSoundHook?: UseSoundHookSignature;

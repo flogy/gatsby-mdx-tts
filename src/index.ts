@@ -30,10 +30,9 @@ const hasTextChanged = (speechMarksJson: any, freshText: string) => {
 
 const generateTtsFiles = async (
   pluginOptions: PluginOptions,
-  text: string,
+  speechOutputBlock: SpeechOutputBlock,
   cache: Cache,
-  reporter: Reporter,
-  speechOutputId: string
+  reporter: Reporter
 ) => {
   // TODO: move AWS and Polly initialization out of this loop but only initialize if actually some text has changed
   AwsConfig.update({
@@ -49,15 +48,15 @@ const generateTtsFiles = async (
 
   let ssmlTagsBeforeText = "";
   let ssmlTagsAfterText = "";
-  if (pluginOptions.defaultSsmlTags) {
-    if (pluginOptions.defaultSsmlTags.indexOf("$SPEECH_OUTPUT_TEXT") === -1) {
+  const ssmlTagsToUse =
+    speechOutputBlock.ssmlTags || pluginOptions.defaultSsmlTags;
+  if (ssmlTagsToUse) {
+    if (ssmlTagsToUse.indexOf("$SPEECH_OUTPUT_TEXT") === -1) {
       throw new Error(
         "If the 'defaultSsmlTags' option is defined it must contain the '$SPEECH_OUTPUT_TEXT' variable (see README file)."
       );
     }
-    const matches = pluginOptions.defaultSsmlTags.match(
-      /(.*)\$SPEECH_OUTPUT_TEXT(.*)/
-    );
+    const matches = ssmlTagsToUse.match(/(.*)\$SPEECH_OUTPUT_TEXT(.*)/);
     if (!!matches) {
       ssmlTagsBeforeText = matches[1];
       ssmlTagsAfterText = matches[2];
@@ -67,28 +66,32 @@ const generateTtsFiles = async (
       );
     }
   }
-  const textWithSsmlTags = `<speak>${ssmlTagsBeforeText}${text}${ssmlTagsAfterText}</speak>`;
+  const textWithSsmlTags = `<speak>${ssmlTagsBeforeText}${speechOutputBlock.text}${ssmlTagsAfterText}</speak>`;
 
   const pollyBaseConfiguration = {
-    VoiceId: pluginOptions.defaultVoiceId,
-    LexiconNames: pluginOptions.lexiconNames,
+    VoiceId: speechOutputBlock.voiceId || pluginOptions.defaultVoiceId,
+    LexiconNames:
+      speechOutputBlock.lexiconNames || pluginOptions.defaultLexiconNames,
     TextType: "ssml",
     Text: textWithSsmlTags
   };
 
   reporter.info(
-    `(Re-)generating mp3 for SpeechOutput with ID: ${speechOutputId}`
+    `(Re-)generating mp3 for SpeechOutput with ID: ${speechOutputBlock.id}`
   );
   const mp3Data = await Polly.synthesizeSpeech({
     OutputFormat: "mp3",
     ...pollyBaseConfiguration
   }).promise();
   if (mp3Data.AudioStream instanceof Buffer) {
-    cache.cache.set(getAudioCacheKey(speechOutputId), mp3Data.AudioStream);
+    cache.cache.set(
+      getAudioCacheKey(speechOutputBlock.id),
+      mp3Data.AudioStream
+    );
   }
 
   reporter.info(
-    `(Re-)generating speech marks for SpeechOutput with ID: ${speechOutputId}`
+    `(Re-)generating speech marks for SpeechOutput with ID: ${speechOutputBlock.id}`
   );
   const jsonData = await Polly.synthesizeSpeech({
     OutputFormat: "json",
@@ -100,11 +103,12 @@ const generateTtsFiles = async (
     const speechMarksJson = JSON.parse(
       `[${speechMarks.replace(/\}\n\{/g, "},{")}]`
     );
+    // TODO: also check if SpeechOutput props have changed!
     const json = {
-      textHash: getHash(text),
+      textHash: getHash(speechOutputBlock.text),
       speechMarks: speechMarksJson
     };
-    cache.cache.set(getSpeechMarksCacheKey(speechOutputId), json);
+    cache.cache.set(getSpeechMarksCacheKey(speechOutputBlock.id), json);
   }
 };
 
@@ -126,14 +130,9 @@ const generateFiles = async (
     if (
       !filesAlreadyExist ||
       hasTextChanged(speechMarks, speechOutputBlock.text)
+      // TODO: also check if SpeechOutput props have changed!
     ) {
-      await generateTtsFiles(
-        pluginOptions,
-        speechOutputBlock.text,
-        cache,
-        reporter,
-        speechOutputBlock.id
-      );
+      await generateTtsFiles(pluginOptions, speechOutputBlock, cache, reporter);
     }
 
     const eventuallyRegeneratedSpeechMarks = await cache.cache.get(
@@ -170,7 +169,7 @@ interface PluginOptions {
     secretAccessKey: string;
   };
   defaultSsmlTags?: string;
-  lexiconNames?: LexiconNameList;
+  defaultLexiconNames?: LexiconNameList;
   speechOutputComponentName?: string;
 }
 
