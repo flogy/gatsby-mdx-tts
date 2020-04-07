@@ -70,7 +70,8 @@ const buildSpeechOutputBlock = (
 
 const extractSpeechOutputBlocks = (
   mdxAst: Node,
-  speechOutputComponentName: string
+  speechOutputComponentName: string,
+  ignoredCharactersRegex?: RegExp
 ): SpeechOutputBlock[] => {
   const speechOutputBlocks: SpeechOutputBlock[] = [];
 
@@ -93,9 +94,12 @@ const extractSpeechOutputBlocks = (
     (startNode: Node, startNodeIndex: number, parent: Node) => {
       const relatedEndNode = findAfter(parent, startNode, isEndNode);
       const nodesToGetTextFrom = between(parent, startNode, relatedEndNode);
-      const text = nodesToGetTextFrom.map(getSsmlFromMdxAst).join("");
+      const unfilteredText = nodesToGetTextFrom.map(getSsmlFromMdxAst).join("");
+      const filteredText = ignoredCharactersRegex
+        ? unfilteredText.replace(new RegExp(ignoredCharactersRegex, "g"), "")
+        : unfilteredText;
       speechOutputBlocks.push(
-        buildSpeechOutputBlock(startNode, text, relatedEndNode)
+        buildSpeechOutputBlock(startNode, filteredText, relatedEndNode)
       );
     }
   );

@@ -93,6 +93,7 @@ There are two ways to configure your AWS credentials:
 | `awsCredentials`            | No       | `{ "accessKeyId": process.env.GATSBY_AWS_ACCESS_KEY_ID, "secretAccessKey": process.env.GATSBY_AWS_SECRET_ACCESS_KEY }` |
 | `defaultSsmlTags`           | No       | `"<prosody rate='70%'>$SPEECH_OUTPUT_TEXT</prosody>"`                                                                  |
 | `defaultLexiconNames`       | No       | `["LexA", "LexB"]`                                                                                                     |
+| `ignoredCharactersRegex`    | No       | `/·/`                                                                                                                  |
 | `speechOutputComponentName` | No       | `"CustomComponent"`                                                                                                    |
 
 ##### About `defaultSsmlTags`:
@@ -100,6 +101,10 @@ There are two ways to configure your AWS credentials:
 - For an overview of all supported SSML tags check out the [supported SSML tags list](https://docs.aws.amazon.com/polly/latest/dg/supportedtags.html) in the AWS docs.
 - The surrounding `<speak>` tag is added automatically.
 - The variable `$SPEECH_OUTPUT_TEXT` will be replaced with the speech output text.
+
+##### About `ignoredCharactersRegex`:
+
+If your text contains special characters that should be ignored while reading (e.g. `fear·ful` should be read as `fearful`) you can use the `ignoredCharactersRegex` to define the characters to be ignored.
 
 ##### About `speechOutputComponentName`:
 

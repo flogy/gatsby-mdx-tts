@@ -170,6 +170,7 @@ interface PluginOptions {
   };
   defaultSsmlTags?: string;
   defaultLexiconNames?: LexiconNameList;
+  ignoredCharactersRegex?: RegExp;
   speechOutputComponentName?: string;
 }
 
@@ -179,7 +180,8 @@ module.exports = async (
 ) => {
   const speechOutputBlocks = extractSpeechOutputBlocks(
     parameters.markdownAST,
-    pluginOptions.speechOutputComponentName || "SpeechOutput"
+    pluginOptions.speechOutputComponentName || "SpeechOutput",
+    pluginOptions.ignoredCharactersRegex
   );
 
   if (speechOutputBlocks.length > 0) {

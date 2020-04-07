@@ -13,6 +13,18 @@ it("should correctly extract speech output blocks from MDX AST", async () => {
   );
 });
 
+it("should remove ignored special characters", async () => {
+  const mdxAst = loadMdxAstFromFile("single-block-with-special-characters.mdx");
+  const speechOutputBlock = extractSpeechOutputBlocks(
+    mdxAst,
+    "SpeechOutput",
+    /·/
+  )[0];
+  expect(speechOutputBlock.text).toEqual(
+    "Inside<break time='1s'/>I am a bit fearful that this dot is vocalized. The dot in the word fearful should be filtered out.<break time='1s'/>"
+  );
+});
+
 it("heading should end with a break SSML tag", () => {
   const headingAst = {
     type: "heading",
