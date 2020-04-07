@@ -9,7 +9,7 @@ it("should correctly extract speech output blocks from MDX AST", async () => {
     "SpeechOutput"
   )[0];
   expect(speechOutputBlock.text).toEqual(
-    "Inside<break time='1s'/>Now, this text is inside the block.<break time='1s'/>And this as well.<break time='1s'/>"
+    "<s>Inside</s><break time='0.5s'/>Now, this text is inside the block.<break time='1s'/><s>Second title</s><break time='0.5s'/>And this as well.<break time='1s'/>"
   );
 });
 
@@ -21,11 +21,11 @@ it("should remove ignored special characters", async () => {
     /·/
   )[0];
   expect(speechOutputBlock.text).toEqual(
-    "Inside<break time='1s'/>I am a bit fearful that this dot is vocalized. The dot in the word fearful should be filtered out.<break time='1s'/>"
+    "<s>Inside</s><break time='0.5s'/>I am a bit fearful that this dot is vocalized. The dot in the word fearful should be filtered out.<break time='1s'/>"
   );
 });
 
-it("heading should end with a break SSML tag", () => {
+it("heading should be enclosed in a <s> and end with a <break> SSML tag", () => {
   const headingAst = {
     type: "heading",
     depth: 1,
@@ -63,5 +63,5 @@ it("heading should end with a break SSML tag", () => {
     }
   };
   const ssmlString = getSsmlFromMdxAst(headingAst);
-  expect(ssmlString).toEqual("Hello, world!<break time='1s'/>");
+  expect(ssmlString).toEqual("<s>Hello, world!</s><break time='0.5s'/>");
 });

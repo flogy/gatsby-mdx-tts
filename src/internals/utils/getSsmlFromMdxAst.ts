@@ -1,6 +1,7 @@
 import { Node } from "unist";
 
-const defaultBreakTag = "<break time='1s'/>";
+const headingBreakTag = "<break time='0.5s'/>";
+const paragraphBreakTag = "<break time='1s'/>";
 
 const mdastToSsmlString = (node: Node) => {
   let ssmlString = "";
@@ -13,8 +14,11 @@ const mdastToSsmlString = (node: Node) => {
   if (children) {
     ssmlString = ssmlString.concat(children.map(mdastToSsmlString).join(""));
   }
-  if (node.type === "paragraph" || node.type === "heading") {
-    ssmlString = ssmlString.concat(defaultBreakTag);
+  if (node.type === "paragraph") {
+    ssmlString = `${ssmlString}${paragraphBreakTag}`;
+  }
+  if (node.type === "heading") {
+    ssmlString = `<s>${ssmlString}</s>${headingBreakTag}`;
   }
   return ssmlString;
 };
