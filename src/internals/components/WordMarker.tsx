@@ -55,7 +55,7 @@ export const markChildText = (
       const text: string = child as string;
 
       const isWordRegex = new RegExp(
-        `([a-zA-Z0-9À-ž]([a-zA-Z0-9À-ž${ignoredWordSplittingCharactersRegex}]*)[a-zA-Z0-9À-ž])|[a-zA-Z0-9À-ž]+`,
+        `([a-zA-Z0-9À-ž]([a-zA-Z0-9À-ž${ignoredWordSplittingCharactersRegex?.source}]*)[a-zA-Z0-9À-ž])|[a-zA-Z0-9À-ž]+`,
         "g"
       );
       const wordPositions: WordPosition[] = [];

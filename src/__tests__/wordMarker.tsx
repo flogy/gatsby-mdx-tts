@@ -169,6 +169,16 @@ it("mark second word in heading with slash with spaces", async () => {
   executeWordMarkerTest(jsx, 1, "<h1>Mobilicorpus / <mark>reducto</mark></h1>");
 });
 
+it("ignoring word splitting characters must not interfere with slashes", async () => {
+  const jsx = <h1>Mobilicorpus/reducto</h1>;
+  executeWordMarkerTest(
+    jsx,
+    0,
+    "<h1><mark>Mobilicorpus</mark>/reducto</h1>",
+    /·/
+  );
+});
+
 it("mark second word in heading with diacritics", async () => {
   const jsx = <h1>Mobilicorpus rèdücto reducto</h1>;
   executeWordMarkerTest(
