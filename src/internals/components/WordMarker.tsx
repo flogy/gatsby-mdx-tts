@@ -2,6 +2,7 @@ import React from "react";
 
 interface WordMarkerProps {
   markedWordIndex: number;
+  ignoredWordSplittingCharactersRegex?: RegExp;
 }
 
 type MapFunction = (child: React.ReactNode) => React.ReactNode;
@@ -27,7 +28,8 @@ interface WordPosition {
 
 export const markChildText = (
   children: React.ReactNode,
-  markedWordIndex: number
+  markedWordIndex: number,
+  ignoredWordSplittingCharactersRegex?: RegExp
 ): React.ReactNode => {
   const newChildren = [];
 
@@ -52,7 +54,10 @@ export const markChildText = (
 
       const text: string = child as string;
 
-      const isWordRegex = /[a-zA-Z0-9À-ž]+/g;
+      const isWordRegex = new RegExp(
+        `([a-zA-Z0-9À-ž]([a-zA-Z0-9À-ž${ignoredWordSplittingCharactersRegex}]*)[a-zA-Z0-9À-ž])|[a-zA-Z0-9À-ž]+`,
+        "g"
+      );
       const wordPositions: WordPosition[] = [];
       let match;
       while ((match = isWordRegex.exec(text)) != null) {
@@ -110,7 +115,11 @@ const WordMarker: React.FunctionComponent<WordMarkerProps> = props => {
 
   React.useEffect(() => {
     setManipulatedChildren(
-      markChildText(props.children, props.markedWordIndex)
+      markChildText(
+        props.children,
+        props.markedWordIndex,
+        props.ignoredWordSplittingCharactersRegex
+      )
     );
   }, [props.children, props.markedWordIndex]);
 

@@ -104,7 +104,9 @@ There are two ways to configure your AWS credentials:
 
 ##### About `ignoredCharactersRegex`:
 
-If your text contains special characters that should be ignored while reading (e.g. `fear·ful` should be read as `fearful`) you can use the `ignoredCharactersRegex` to define the characters to be ignored.
+If your text contains special characters that should not be vocalized (e.g. `fear·ful` should be just read as `fearful`) you can use the `ignoredCharactersRegex` to define the characters to be ignored.
+
+You might also want those words not to be split up during word marking. Therefore also check out [Ignore word splitting characters](#ignore-word-splitting-characters).
 
 ##### About `speechOutputComponentName`:
 
@@ -165,6 +167,12 @@ If you choose to use your own component, make sure it uses the `SpeechOutputProp
 ### Custom `useSound` hook
 
 In case you would like to manage playing sounds by yourself you can pass an optional hook to the `useCustomSoundHook` prop of the `SpeechOutput` component. It has to follow the `UseSoundHookSignature` type as exported from `UseSound.ts` (which is the default sound hook).
+
+### Ignore word splitting characters
+
+You might use characters that split a word into two, e.g. `fear·ful`. Those word parts are now marked individually by default. To avoid this, you can define the characters to ignore with the `ignoredWordSplittingCharactersRegex` prop.
+
+Probably you also don't want this character to be vocalized during speech output. Therefore make sure you also configure the `ignoredCharactersRegex` in the [plugin options](#all-configurations).
 
 ## Event listeners
 

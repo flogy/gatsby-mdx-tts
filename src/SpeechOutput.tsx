@@ -22,6 +22,7 @@ export interface SpeechOutputProps {
   customPlayButton?: React.FunctionComponent<PlayButtonProps>;
   onWordMarked?: (word: string) => void;
   useCustomSoundHook?: UseSoundHookSignature;
+  ignoredWordSplittingCharactersRegex?: RegExp;
 }
 
 const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = props => {
@@ -53,7 +54,12 @@ const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = props => {
   return (
     <>
       <PlayButton isPlaying={isPlaying} onClick={onPlayStopButtonClicked} />
-      <WordMarker markedWordIndex={currentWord.index}>
+      <WordMarker
+        markedWordIndex={currentWord.index}
+        ignoredWordSplittingCharactersRegex={
+          props.ignoredWordSplittingCharactersRegex
+        }
+      >
         {props.children}
       </WordMarker>
     </>

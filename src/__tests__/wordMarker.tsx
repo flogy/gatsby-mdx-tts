@@ -7,14 +7,22 @@ import WordMarker from "../internals/components/WordMarker";
 const executeWordMarkerTest = (
   jsx: JSX.Element,
   markedWordIndex: number,
-  expectedResultingHtml: string
+  expectedResultingHtml: string,
+  ignoredWordSplittingCharactersRegex?: RegExp
 ) => {
   configure({ adapter: new Adapter() });
 
   let component: any;
   act(() => {
     component = mount(
-      <WordMarker markedWordIndex={markedWordIndex}>{jsx}</WordMarker>
+      <WordMarker
+        markedWordIndex={markedWordIndex}
+        ignoredWordSplittingCharactersRegex={
+          ignoredWordSplittingCharactersRegex
+        }
+      >
+        {jsx}
+      </WordMarker>
     );
   });
   component.update();
@@ -167,5 +175,39 @@ it("mark second word in heading with diacritics", async () => {
     jsx,
     1,
     "<h1>Mobilicorpus <mark>rèdücto</mark> reducto</h1>"
+  );
+});
+
+it("do not split words because of an ignored character", async () => {
+  const jsx = (
+    <p>I am a bit fear·ful that fearful is split because of the dot.</p>
+  );
+  executeWordMarkerTest(
+    jsx,
+    4,
+    "<p>I am a bit <mark>fear·ful</mark> that fearful is split because of the dot.</p>",
+    /·/
+  );
+});
+
+it("do not mark ignored character when not inside a word", async () => {
+  const jsx = <p>After· standalone · and ·before.</p>;
+  executeWordMarkerTest(
+    jsx,
+    0,
+    "<p><mark>After</mark>· standalone · and ·before.</p>",
+    /·/
+  );
+  executeWordMarkerTest(
+    jsx,
+    2,
+    "<p>After· standalone · <mark>and</mark> ·before.</p>",
+    /·/
+  );
+  executeWordMarkerTest(
+    jsx,
+    3,
+    "<p>After· standalone · and ·<mark>before</mark>.</p>",
+    /·/
   );
 });
