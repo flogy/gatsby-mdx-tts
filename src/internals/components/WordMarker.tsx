@@ -20,6 +20,11 @@ const deepMap = (
   });
 };
 
+interface WordPosition {
+  startIndex: number;
+  endIndex: number;
+}
+
 export const markChildText = (
   children: React.ReactNode,
   markedWordIndex: number
@@ -45,51 +50,50 @@ export const markChildText = (
         return child;
       }
 
-      const hasWhiteSpaceBeforeFirstWord =
-        (child as string).match(/^\s/) !== null;
-      const hasWhiteSpaceAfterLastWord =
-        (child as string).match(/.*\s$/) !== null;
+      const text: string = child as string;
 
-      const whitespaceOrNewlineRegex = /[\s\n]/;
-      const words = (child as string)
-        .split(whitespaceOrNewlineRegex)
-        .filter(word => word.trim().length > 0);
+      const isWordRegex = /[a-zA-Z0-9À-ž]+/g;
+      const wordPositions: WordPosition[] = [];
+      let match;
+      while ((match = isWordRegex.exec(text)) != null) {
+        const startIndex = match.index;
+        const wordLength = match[0].length;
+        wordPositions.push({
+          startIndex,
+          endIndex: startIndex + wordLength
+        });
+      }
 
       const doesChildContainHighlightedWord =
         markedWordIndex >= currentIndex &&
-        markedWordIndex < currentIndex + words.length;
+        markedWordIndex < currentIndex + wordPositions.length;
 
       if (!doesChildContainHighlightedWord) {
-        currentIndex += words.length;
+        currentIndex += wordPositions.length;
         return child;
       }
 
       const wordIndexInsideChild = markedWordIndex - currentIndex;
-      const textBeforeHighlightedWord = words
-        .slice(0, wordIndexInsideChild)
-        .join(" ");
-      const textAfterHighlightedWord = words
-        .slice(wordIndexInsideChild + 1)
-        .join(" ");
+
+      const markedWordPosition = wordPositions[wordIndexInsideChild];
+
+      const textBeforeHighlightedWord = text.slice(
+        0,
+        markedWordPosition.startIndex
+      );
+      const textAfterHighlightedWord = text.slice(markedWordPosition.endIndex);
       const highlightedWordComponent = React.createElement(
         "mark",
         null,
-        words[wordIndexInsideChild]
+        text.slice(markedWordPosition.startIndex, markedWordPosition.endIndex)
       );
 
-      currentIndex += words.length;
+      currentIndex += wordPositions.length;
+
       return [
-        ...[
-          `${hasWhiteSpaceBeforeFirstWord ? " " : ""}${
-            textBeforeHighlightedWord ? `${textBeforeHighlightedWord} ` : ""
-          }`
-        ],
+        textBeforeHighlightedWord,
         highlightedWordComponent,
-        ...[
-          `${textAfterHighlightedWord ? ` ${textAfterHighlightedWord}` : ""}${
-            hasWhiteSpaceAfterLastWord ? " " : ""
-          }`
-        ]
+        textAfterHighlightedWord
       ];
     }
     return child;

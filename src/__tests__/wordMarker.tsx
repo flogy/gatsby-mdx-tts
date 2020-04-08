@@ -140,3 +140,32 @@ it("mark word after text with link to check that question mark after link is not
     '<p>Would you click <a href="#">this link</a>?</p>'
   );
 });
+
+it("mark first word in heading with slash without spaces", async () => {
+  const jsx = <h1>Mobilicorpus/reducto</h1>;
+  executeWordMarkerTest(jsx, 0, "<h1><mark>Mobilicorpus</mark>/reducto</h1>");
+});
+
+it("mark second word in heading with slash without spaces", async () => {
+  const jsx = <h1>Mobilicorpus/reducto</h1>;
+  executeWordMarkerTest(jsx, 1, "<h1>Mobilicorpus/<mark>reducto</mark></h1>");
+});
+
+it("mark first word in heading with slash with spaces", async () => {
+  const jsx = <h1>Mobilicorpus / reducto</h1>;
+  executeWordMarkerTest(jsx, 0, "<h1><mark>Mobilicorpus</mark> / reducto</h1>");
+});
+
+it("mark second word in heading with slash with spaces", async () => {
+  const jsx = <h1>Mobilicorpus / reducto</h1>;
+  executeWordMarkerTest(jsx, 1, "<h1>Mobilicorpus / <mark>reducto</mark></h1>");
+});
+
+it("mark second word in heading with diacritics", async () => {
+  const jsx = <h1>Mobilicorpus rèdücto reducto</h1>;
+  executeWordMarkerTest(
+    jsx,
+    1,
+    "<h1>Mobilicorpus <mark>rèdücto</mark> reducto</h1>"
+  );
+});
