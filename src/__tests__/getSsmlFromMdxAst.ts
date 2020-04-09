@@ -4,10 +4,9 @@ import getSsmlFromMdxAst from "../internals/utils/getSsmlFromMdxAst";
 
 it("should correctly extract speech output blocks from MDX AST", async () => {
   const mdxAst = loadMdxAstFromFile("single-block.mdx");
-  const speechOutputBlock = extractSpeechOutputBlocks(
-    mdxAst,
+  const speechOutputBlock = extractSpeechOutputBlocks(mdxAst, [
     "SpeechOutput"
-  )[0];
+  ])[0];
   expect(speechOutputBlock.text).toEqual(
     "<s>Inside</s><break time='0.5s'/>Now, this text is inside the block.<break time='1s'/><s>Second title</s><break time='0.5s'/>And this as well.<break time='1s'/>"
   );
@@ -17,7 +16,7 @@ it("should remove ignored special characters", async () => {
   const mdxAst = loadMdxAstFromFile("single-block-with-special-characters.mdx");
   const speechOutputBlock = extractSpeechOutputBlocks(
     mdxAst,
-    "SpeechOutput",
+    ["SpeechOutput"],
     /·/
   )[0];
   expect(speechOutputBlock.text).toEqual(

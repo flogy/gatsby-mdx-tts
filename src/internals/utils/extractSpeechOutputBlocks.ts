@@ -70,22 +70,29 @@ const buildSpeechOutputBlock = (
 
 const extractSpeechOutputBlocks = (
   mdxAst: Node,
-  speechOutputComponentName: string,
+  speechOutputComponentNames: string[],
   ignoredCharactersRegex?: RegExp
 ): SpeechOutputBlock[] => {
   const speechOutputBlocks: SpeechOutputBlock[] = [];
 
   const isStartNode = (node: unknown): node is Node => {
     const value = (node as Node).value as string;
-    return (
-      (node as Node).type === "jsx" &&
+    if ((node as Node).type !== "jsx") {
+      return false;
+    }
+    return !!speechOutputComponentNames.find(speechOutputComponentName =>
       value.startsWith(`<${speechOutputComponentName}`)
     );
   };
 
   const isEndNode = (node: Node) => {
     const value = node.value as string;
-    return node.type === "jsx" && value === `</${speechOutputComponentName}>`;
+    if (node.type !== "jsx") {
+      return false;
+    }
+    return !!speechOutputComponentNames.find(
+      speechOutputComponentName => value === `</${speechOutputComponentName}>`
+    );
   };
 
   visit<Node>(

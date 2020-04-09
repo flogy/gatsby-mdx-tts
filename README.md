@@ -86,15 +86,15 @@ There are two ways to configure your AWS credentials:
 
 ### All configurations
 
-| Option                      | Required | Example                                                                                                                |
-| --------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `awsRegion`                 | Yes      | `"us-east-1"`                                                                                                          |
-| `defaultVoiceId`            | Yes      | `"Justin"`                                                                                                             |
-| `awsCredentials`            | No       | `{ "accessKeyId": process.env.GATSBY_AWS_ACCESS_KEY_ID, "secretAccessKey": process.env.GATSBY_AWS_SECRET_ACCESS_KEY }` |
-| `defaultSsmlTags`           | No       | `"<prosody rate='70%'>$SPEECH_OUTPUT_TEXT</prosody>"`                                                                  |
-| `defaultLexiconNames`       | No       | `["LexA", "LexB"]`                                                                                                     |
-| `ignoredCharactersRegex`    | No       | `/·/`                                                                                                                  |
-| `speechOutputComponentName` | No       | `"CustomComponent"`                                                                                                    |
+| Option                       | Required | Example                                                                                                                |
+| ---------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `awsRegion`                  | Yes      | `"us-east-1"`                                                                                                          |
+| `defaultVoiceId`             | Yes      | `"Justin"`                                                                                                             |
+| `awsCredentials`             | No       | `{ "accessKeyId": process.env.GATSBY_AWS_ACCESS_KEY_ID, "secretAccessKey": process.env.GATSBY_AWS_SECRET_ACCESS_KEY }` |
+| `defaultSsmlTags`            | No       | `"<prosody rate='70%'>$SPEECH_OUTPUT_TEXT</prosody>"`                                                                  |
+| `defaultLexiconNames`        | No       | `["LexA", "LexB"]`                                                                                                     |
+| `ignoredCharactersRegex`     | No       | `/·/`                                                                                                                  |
+| `speechOutputComponentNames` | No       | `["CustomComponent"]`                                                                                                  |
 
 ##### About `defaultSsmlTags`:
 
@@ -108,9 +108,9 @@ If your text contains special characters that should not be vocalized (e.g. `fea
 
 You might also want those words not to be split up during word marking. Therefore also check out [Ignore word splitting characters](#ignore-word-splitting-characters).
 
-##### About `speechOutputComponentName`:
+##### About `speechOutputComponentNames`:
 
-If you want to use your own component to handle the generated speech output you can specify its name using the `speechOutputComponentName` option. The plugin will then use this instead of `SpeechOutput` to extract the text to be used for TTS generation. Like that you can customize the way speech output is handled. Find more information about this in the [customization chapter](#customize).
+If you want to use your own component to handle the generated speech output you can specify its name using the `speechOutputComponentNames` option. The plugin will then use this instead of `SpeechOutput` to extract the text to be used for TTS generation. It is also possible to define multiple component names. Like that you can customize the way speech output is handled. Find more information about this in the [customization chapter](#customize).
 
 ### Embed speech output in your MDX
 
@@ -160,7 +160,7 @@ If you choose to use a custom play button component, make sure it uses the `Play
 
 ### Speech output handling
 
-You can replace the whole speech output handling by using your own React component instead of the default `SpeechOutput` component. Like that, the TTS files are still generated during build phase but you can then do whatever you want with those files inside your component at runtime. To do so, use the `speechOutputComponentName` configuration option (see [About `speechOutputComponentName`](#about-speechoutputcomponentname)).
+You can replace the whole speech output handling by using your own React component instead of the default `SpeechOutput` component. Like that, the TTS files are still generated during build phase but you can then do whatever you want with those files inside your component at runtime. To do so, use the `speechOutputComponentNames` configuration option (see [About `speechOutputComponentNames`](#about-speechoutputcomponentnames)).
 
 If you choose to use your own component, make sure it uses the `SpeechOutputProps` exported from this plugin.
 
