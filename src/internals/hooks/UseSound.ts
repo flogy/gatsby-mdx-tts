@@ -25,6 +25,15 @@ const useSound: UseSoundHookSignature = (soundFilePath: string) => {
     }
   }, [isPlaying]);
 
+  React.useEffect(() => {    
+    return () => {
+      if (soundFileHandle.current) {
+        soundFileHandle.current.pause();
+        soundFileHandle.current.currentTime = 0;
+      }
+    }
+  }, []);
+
   return [isPlaying, setPlaying];
 };
 
