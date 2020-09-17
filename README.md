@@ -28,7 +28,7 @@ Also check out the [example project repository](https://github.com/flogy/gatsby-
 
 1. In order to use this plugin you need an [AWS account](https://portal.aws.amazon.com/billing/signup). You can use the text-to-speech service ([AWS Polly](https://aws.amazon.com/de/polly/)) for free for the first 12 months (up to a couple million words to be precise).
 
-   **Attention:** If you exceed the limits or use it after your initial free tier, using this plugin will generate costs in your AWS account!
+   **Attention:** If you exceed the limits or use it after your initial free tier, using this plugin will generate costs in your AWS account! Read how you can [save money by using an external cache](#save-money-using-an-external-cache-).
 
 2. As this is a plugin for [gatsby-plugin-mdx](https://github.com/gatsbyjs/gatsby/tree/master/packages/gatsby-plugin-mdx) it will only work if you have that plugin installed and configured properly as well.
 
@@ -181,6 +181,15 @@ To be able to react to certain events you can register the following event liste
 ### `onWordMarked`
 
 When a speech output is played the spoken words are highlighted in the text simultaneously. The `onWordMarked` listener is called as soon as a new word is highlighted and delivers the currently highlighted word as a string. When no word is highlighted (anymore) the string is empty.
+
+## Save money using an external cache 💸
+
+Every time the internal Gatsby cache is cleared and your TTS files are regenerated AWS will bill you for it after exceeding the free tier. This can get quite expensive, especially for large projects.
+
+To prevent this from happening too often you can use external caches. Here is a list of plugins you can use for this purpose:
+
+- https://github.com/axe312ger/gatsby-plugin-netlify-cache
+- https://github.com/axe312ger/gatsby-plugin-sftp-cache
 
 ## Contribute 🦸
 
