@@ -206,3 +206,20 @@ The [MIT License](LICENSE)
 The _gatsby-mdx-tts_ library is maintained and sponsored by the Swiss web and mobile app development company [Florian Gyger Software](https://floriangyger.ch).
 
 If this library saved you some time and money please consider [sponsoring me](https://github.com/sponsors/flogy), so I can build more libraries for free and actively maintain them for you. Thank you 🙏
+
+### Current sponsors
+
+A big thank you goes to the current sponsors of this library:
+
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top">
+        <img width="100" height="100" src="https://github.com/andrinmeier.png?s=150">
+        <br>
+        <a href="https://github.com/andrinmeier">Andrin Meier</a>
+      </td>
+     </tr>
+  </tbody>
+</table>
+
