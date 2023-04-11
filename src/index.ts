@@ -1,15 +1,24 @@
 import { Node } from "unist";
 import path from "path";
 import { mkdirSync, writeFileSync } from "fs";
+import { createInterface } from "readline";
 import crypto from "crypto";
-import AWS from "aws-sdk";
-import { LexiconNameList, VoiceId } from "aws-sdk/clients/polly";
-const AwsConfig = AWS.config;
-import { AWSRegion } from "aws-sdk/clients/cur";
+import { defaultProvider } from "@aws-sdk/credential-provider-node";
+import {
+  PollyClient,
+  SynthesizeSpeechCommand,
+  SynthesizeSpeechCommandInput,
+  VoiceId,
+} from "@aws-sdk/client-polly";
 import { Cache, Reporter } from "gatsby";
 import extractSpeechOutputBlocks, {
   SpeechOutputBlock,
 } from "./internals/utils/extractSpeechOutputBlocks";
+
+const readline = createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
 
 const getSpeechMarksCacheKey = (speechOutputId: string) =>
   `${speechOutputId}.json`;
@@ -35,32 +44,24 @@ const generateTtsFiles = async (
   reporter: Reporter
 ) => {
   // TODO: move AWS and Polly initialization out of this loop but only initialize if actually some text has changed
-  const evaluateCredentials = () => {
-    if (pluginOptions.awsCredentials) {
-      reporter.info("Using AWS credentials configured in plugin options");
-      return {
-        accessKeyId: pluginOptions.awsCredentials.accessKeyId,
-        secretAccessKey: pluginOptions.awsCredentials.secretAccessKey,
-      };
-    }
-    if (pluginOptions.awsProfile) {
-      reporter.info(
-        `Using AWS credentials configured in shared credentials file as profile ${pluginOptions.awsProfile}`
-      );
-      return new AWS.SharedIniFileCredentials({
-        profile: pluginOptions.awsProfile,
-      });
-    }
-    reporter.info(
-      "Using AWS credentials configured using environment variables or the default shared credentials profile"
-    );
-    return undefined;
-  };
-  AwsConfig.update({
+  const client = new PollyClient({
+    apiVersion: "2016-06-10",
     region: pluginOptions.awsRegion,
-    credentials: evaluateCredentials(),
+    credentials: defaultProvider({
+      profile: pluginOptions.awsProfile,
+      mfaCodeProvider: async (mfaSerial) => {
+        return new Promise((resolve) => {
+          readline.question(
+            `Enter MFA token for AWS account: ${mfaSerial}\n`,
+            (mfaToken) => {
+              readline.close();
+              resolve(mfaToken);
+            }
+          );
+        });
+      },
+    }),
   });
-  const Polly = new AWS.Polly({ apiVersion: "2016-06-10" });
 
   let ssmlTagsBeforeText = "";
   let ssmlTagsAfterText = "";
@@ -84,7 +85,10 @@ const generateTtsFiles = async (
   }
   const textWithSsmlTags = `<speak>${ssmlTagsBeforeText}${speechOutputBlock.text}${ssmlTagsAfterText}</speak>`;
 
-  const pollyBaseConfiguration = {
+  const pollyBaseConfiguration: Omit<
+    SynthesizeSpeechCommandInput,
+    "OutputFormat"
+  > = {
     VoiceId: speechOutputBlock.voiceId || pluginOptions.defaultVoiceId,
     LexiconNames:
       speechOutputBlock.lexiconNames || pluginOptions.defaultLexiconNames,
@@ -95,27 +99,32 @@ const generateTtsFiles = async (
   reporter.info(
     `(Re-)generating mp3 for SpeechOutput with ID: ${speechOutputBlock.id}`
   );
-  const mp3Data = await Polly.synthesizeSpeech({
-    OutputFormat: "mp3",
-    ...pollyBaseConfiguration,
-  }).promise();
-  if (mp3Data.AudioStream instanceof Buffer) {
+  const mp3Data = await client.send(
+    new SynthesizeSpeechCommand({
+      OutputFormat: "mp3",
+      ...pollyBaseConfiguration,
+    })
+  );
+  const audio = await mp3Data.AudioStream?.transformToByteArray();
+  if (audio) {
     cache.cache.set(
       getAudioCacheKey(speechOutputBlock.id),
-      mp3Data.AudioStream
+      Buffer.from(audio).toString("base64")
     );
   }
 
   reporter.info(
     `(Re-)generating speech marks for SpeechOutput with ID: ${speechOutputBlock.id}`
   );
-  const jsonData = await Polly.synthesizeSpeech({
-    OutputFormat: "json",
-    SpeechMarkTypes: ["word"],
-    ...pollyBaseConfiguration,
-  }).promise();
-  if (jsonData.AudioStream instanceof Buffer) {
-    const speechMarks = jsonData.AudioStream.toString();
+  const jsonData = await client.send(
+    new SynthesizeSpeechCommand({
+      OutputFormat: "json",
+      SpeechMarkTypes: ["word"],
+      ...pollyBaseConfiguration,
+    })
+  );
+  const speechMarks = await jsonData.AudioStream?.transformToString();
+  if (speechMarks) {
     const speechMarksJson = JSON.parse(
       `[${speechMarks.replace(/\}\n\{/g, "},{")}]`
     );
@@ -167,7 +176,7 @@ const generateFiles = async (
     mkdirSync(publicPath, { recursive: true });
     writeFileSync(
       path.join(publicPath, `${speechOutputBlock.id}.mp3`),
-      eventuallyRegeneratedAudio
+      Buffer.from(eventuallyRegeneratedAudio, "base64")
     );
     writeFileSync(
       path.join(publicPath, `${speechOutputBlock.id}.json`),
@@ -183,15 +192,11 @@ interface Parameters {
 }
 
 interface PluginOptions {
-  awsRegion: AWSRegion;
+  awsRegion: string;
   defaultVoiceId: VoiceId;
-  awsCredentials?: {
-    accessKeyId: string;
-    secretAccessKey: string;
-  };
   awsProfile?: string;
   defaultSsmlTags?: string;
-  defaultLexiconNames?: LexiconNameList;
+  defaultLexiconNames?: Array<string>;
   ignoredCharactersRegex?: RegExp;
   speechOutputComponentNames?: string[];
 }

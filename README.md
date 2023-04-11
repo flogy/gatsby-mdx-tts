@@ -64,11 +64,11 @@ plugins: [
 
 The plugin requires your AWS credentials in order to generate the text-to-speech files.
 
-**Important:** For security reasons it is not a good idea to keep access keys with administrator permissions on your local machine, without at least using MFA authentication. As this plugin does not support MFA, it is best to create a new AWS IAM user that only has `AmazonPollyReadOnlyAccess` permission, which is all this plugin needs.
+**Important:** For security reasons it is not a good idea to keep access keys with administrator permissions on your local machine, without at least using MFA authentication. Even better is to restrict the AWS user's permissions to `AmazonPollyReadOnlyAccess`, which is all this plugin needs.
 
-There are two ways to configure your AWS credentials:
+There are various ways to provide your AWS credentials to the plugin. For example:
 
-1. _(recommended)_ The recommended way is to [create a shared credentials file](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/create-shared-credentials-file.html). You can either configure it as your default profile or use the `awsProfile` plugin option to set your profile name.
+- [Create a shared credentials file](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/create-shared-credentials-file.html) and add a profile for your AWS user that will use AWS Polly. You can either configure it as your default profile or use the `awsProfile` plugin option or `AWS_PROFILE` environment variable to pass the custom profile name to the plugin.
 
 ```javascript
 // In your gatsby-config.js
@@ -80,34 +80,19 @@ There are two ways to configure your AWS credentials:
   },
 ```
 
-2. To override the credentials defined in a shared credentials file or to easily build on a CI environment you can optionally pass in the AWS credentials using plugin configuration options:
-
-```javascript
-// In your gatsby-config.js
-{
-  resolve: "gatsby-mdx-tts",
-  options: {
-    awsCredentials: {
-      accessKeyId: process.env.GATSBY_AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.GATSBY_AWS_SECRET_ACCESS_KEY,
-    },
-  },
-},
-```
-
-**Attention:** If you choose to go with option 2 it is highly recommended to work with [environment variables](https://www.gatsbyjs.org/docs/environment-variables/) (as seen in the example above)! Do not directly paste your AWS credentials into your `gatsby-config.js` file and commit it to git as this would be a security issue!
+- Use environment variables `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` to directly configure your user's access key (e.g. to build in a CI environment).
 
 ### All configurations
 
-| Option                       | Required | Example                                                                                                                |
-| ---------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `awsRegion`                  | Yes      | `"us-east-1"`                                                                                                          |
-| `defaultVoiceId`             | Yes      | `"Justin"`                                                                                                             |
-| `awsCredentials`             | No       | `{ "accessKeyId": process.env.GATSBY_AWS_ACCESS_KEY_ID, "secretAccessKey": process.env.GATSBY_AWS_SECRET_ACCESS_KEY }` |
-| `defaultSsmlTags`            | No       | `"<prosody rate='70%'>$SPEECH_OUTPUT_TEXT</prosody>"`                                                                  |
-| `defaultLexiconNames`        | No       | `["LexA", "LexB"]`                                                                                                     |
-| `ignoredCharactersRegex`     | No       | `/·/`                                                                                                                  |
-| `speechOutputComponentNames` | No       | `["CustomComponent"]`                                                                                                  |
+| Option                       | Required | Example                                               |
+| ---------------------------- | -------- | ----------------------------------------------------- |
+| `awsRegion`                  | Yes      | `"us-east-1"`                                         |
+| `defaultVoiceId`             | Yes      | `"Justin"`                                            |
+| `awsProfile`                 | No       | `"gatsby-mdx-tts"`                                    |
+| `defaultSsmlTags`            | No       | `"<prosody rate='70%'>$SPEECH_OUTPUT_TEXT</prosody>"` |
+| `defaultLexiconNames`        | No       | `["LexA", "LexB"]`                                    |
+| `ignoredCharactersRegex`     | No       | `/·/`                                                 |
+| `speechOutputComponentNames` | No       | `["CustomComponent"]`                                 |
 
 ##### About `defaultSsmlTags`:
 

@@ -1,4 +1,4 @@
-import { LexiconNameList, VoiceId } from "aws-sdk/clients/polly";
+import { VoiceId } from "@aws-sdk/client-polly";
 import { Node } from "unist";
 import visit from "unist-util-visit";
 import getSsmlFromMdxAst from "./getSsmlFromMdxAst";
@@ -16,7 +16,7 @@ const jsxParser = acorn.Parser.extend(jsx());
 export interface SpeechOutputBlock {
   id: string;
   text: string;
-  lexiconNames?: LexiconNameList;
+  lexiconNames?: string[];
   ssmlTags?: string;
   voiceId?: VoiceId;
 }
@@ -64,7 +64,7 @@ const buildSpeechOutputBlock = (
     lexiconNames,
     ssmlTags,
     voiceId,
-    text
+    text,
   } as SpeechOutputBlock;
 };
 
@@ -80,7 +80,7 @@ const extractSpeechOutputBlocks = (
     if ((node as Node).type !== "jsx") {
       return false;
     }
-    return !!speechOutputComponentNames.find(speechOutputComponentName =>
+    return !!speechOutputComponentNames.find((speechOutputComponentName) =>
       value.startsWith(`<${speechOutputComponentName}`)
     );
   };
@@ -91,7 +91,7 @@ const extractSpeechOutputBlocks = (
       return false;
     }
     return !!speechOutputComponentNames.find(
-      speechOutputComponentName => value === `</${speechOutputComponentName}>`
+      (speechOutputComponentName) => value === `</${speechOutputComponentName}>`
     );
   };
 

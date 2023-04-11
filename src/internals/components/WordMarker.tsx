@@ -11,10 +11,10 @@ const deepMap = (
   children: React.ReactNode,
   map: MapFunction
 ): React.ReactNode => {
-  return React.Children.map(children, child => {
+  return React.Children.map(children, (child) => {
     if (React.isValidElement(child) && child.props.children) {
-      return React.cloneElement(child, {
-        children: deepMap(child.props.children, map)
+      return React.cloneElement<React.ReactNode>(child, {
+        children: deepMap(child.props.children, map),
       });
     }
     return map(child);
@@ -34,7 +34,7 @@ export const markChildText = (
   const newChildren = [];
 
   let currentIndex = 0;
-  const markWordIfRequired: MapFunction = child => {
+  const markWordIfRequired: MapFunction = (child) => {
     if (!child) {
       return child;
     }
@@ -65,7 +65,7 @@ export const markChildText = (
         const wordLength = match[0].length;
         wordPositions.push({
           startIndex,
-          endIndex: startIndex + wordLength
+          endIndex: startIndex + wordLength,
         });
       }
 
@@ -98,7 +98,7 @@ export const markChildText = (
       return [
         textBeforeHighlightedWord,
         highlightedWordComponent,
-        textAfterHighlightedWord
+        textAfterHighlightedWord,
       ];
     }
     return child;
@@ -108,7 +108,7 @@ export const markChildText = (
   return newChildren;
 };
 
-const WordMarker: React.FunctionComponent<WordMarkerProps> = props => {
+const WordMarker: React.FunctionComponent<WordMarkerProps> = (props) => {
   const [manipulatedChildren, setManipulatedChildren] = React.useState<
     React.ReactNode
   >(props.children);
