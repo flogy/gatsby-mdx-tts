@@ -143,12 +143,17 @@ const generateFiles = async (
     const audio = await cache.cache.get(getAudioCacheKey(speechOutputBlock.id));
 
     const filesAlreadyExist = speechMarks && audio;
-    if (
-      !filesAlreadyExist ||
-      hasTextChanged(speechMarks, speechOutputBlock.text)
-      // TODO: also check if SpeechOutput props have changed!
-    ) {
+
+    // TODO: also check if SpeechOutput props have changed!
+    const isGenerationRequired =
+      !filesAlreadyExist || hasTextChanged(speechMarks, speechOutputBlock.text);
+
+    if (isGenerationRequired) {
       await generateTtsFiles(pluginOptions, speechOutputBlock, cache, reporter);
+    } else {
+      reporter.info(
+        `Skip regenerating unchanged SpeechOutput with ID: ${speechOutputBlock.id}`
+      );
     }
 
     const eventuallyRegeneratedSpeechMarks = await cache.cache.get(
@@ -173,7 +178,7 @@ const generateFiles = async (
 
 interface Parameters {
   markdownAST: Node;
-  cache: Cache;
+  getCache: (id: string) => Cache;
   reporter: Reporter;
 }
 
@@ -201,11 +206,13 @@ module.exports = async (
     pluginOptions.ignoredCharactersRegex
   );
 
+  const cache = parameters.getCache("gatsby-mdx-tts");
+
   if (speechOutputBlocks.length > 0) {
     await generateFiles(
       speechOutputBlocks,
       pluginOptions,
-      parameters.cache,
+      cache,
       parameters.reporter
     );
   }
