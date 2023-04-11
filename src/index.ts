@@ -8,7 +8,7 @@ const AwsConfig = AWS.config;
 import { AWSRegion } from "aws-sdk/clients/cur";
 import { Cache, Reporter } from "gatsby";
 import extractSpeechOutputBlocks, {
-  SpeechOutputBlock
+  SpeechOutputBlock,
 } from "./internals/utils/extractSpeechOutputBlocks";
 
 const getSpeechMarksCacheKey = (speechOutputId: string) =>
@@ -35,14 +35,30 @@ const generateTtsFiles = async (
   reporter: Reporter
 ) => {
   // TODO: move AWS and Polly initialization out of this loop but only initialize if actually some text has changed
+  const evaluateCredentials = () => {
+    if (pluginOptions.awsCredentials) {
+      reporter.info("Using AWS credentials configured in plugin options");
+      return {
+        accessKeyId: pluginOptions.awsCredentials.accessKeyId,
+        secretAccessKey: pluginOptions.awsCredentials.secretAccessKey,
+      };
+    }
+    if (pluginOptions.awsProfile) {
+      reporter.info(
+        `Using AWS credentials configured in shared credentials file as profile ${pluginOptions.awsProfile}`
+      );
+      return new AWS.SharedIniFileCredentials({
+        profile: pluginOptions.awsProfile,
+      });
+    }
+    reporter.info(
+      "Using AWS credentials configured using environment variables or the default shared credentials profile"
+    );
+    return undefined;
+  };
   AwsConfig.update({
     region: pluginOptions.awsRegion,
-    ...(pluginOptions.awsCredentials && {
-      credentials: {
-        accessKeyId: pluginOptions.awsCredentials.accessKeyId,
-        secretAccessKey: pluginOptions.awsCredentials.secretAccessKey
-      }
-    })
+    credentials: evaluateCredentials(),
   });
   const Polly = new AWS.Polly({ apiVersion: "2016-06-10" });
 
@@ -73,7 +89,7 @@ const generateTtsFiles = async (
     LexiconNames:
       speechOutputBlock.lexiconNames || pluginOptions.defaultLexiconNames,
     TextType: "ssml",
-    Text: textWithSsmlTags
+    Text: textWithSsmlTags,
   };
 
   reporter.info(
@@ -81,7 +97,7 @@ const generateTtsFiles = async (
   );
   const mp3Data = await Polly.synthesizeSpeech({
     OutputFormat: "mp3",
-    ...pollyBaseConfiguration
+    ...pollyBaseConfiguration,
   }).promise();
   if (mp3Data.AudioStream instanceof Buffer) {
     cache.cache.set(
@@ -96,7 +112,7 @@ const generateTtsFiles = async (
   const jsonData = await Polly.synthesizeSpeech({
     OutputFormat: "json",
     SpeechMarkTypes: ["word"],
-    ...pollyBaseConfiguration
+    ...pollyBaseConfiguration,
   }).promise();
   if (jsonData.AudioStream instanceof Buffer) {
     const speechMarks = jsonData.AudioStream.toString();
@@ -106,7 +122,7 @@ const generateTtsFiles = async (
     // TODO: also check if SpeechOutput props have changed!
     const json = {
       textHash: getHash(speechOutputBlock.text),
-      speechMarks: speechMarksJson
+      speechMarks: speechMarksJson,
     };
     cache.cache.set(getSpeechMarksCacheKey(speechOutputBlock.id), json);
   }
@@ -168,6 +184,7 @@ interface PluginOptions {
     accessKeyId: string;
     secretAccessKey: string;
   };
+  awsProfile?: string;
   defaultSsmlTags?: string;
   defaultLexiconNames?: LexiconNameList;
   ignoredCharactersRegex?: RegExp;

@@ -64,9 +64,22 @@ plugins: [
 
 The plugin requires your AWS credentials in order to generate the text-to-speech files.
 
+**Important:** For security reasons it is not a good idea to keep access keys with administrator permissions on your local machine, without at least using MFA authentication. As this plugin does not support MFA, it is best to create a new AWS IAM user that only has `AmazonPollyReadOnlyAccess` permission, which is all this plugin needs.
+
 There are two ways to configure your AWS credentials:
 
-1. _(recommended)_ The recommended way is to [create a shared credentials file](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/create-shared-credentials-file.html). You probably already have one if you used the AWS CLI before.
+1. _(recommended)_ The recommended way is to [create a shared credentials file](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/create-shared-credentials-file.html). You can either configure it as your default profile or use the `awsProfile` plugin option to set your profile name.
+
+```javascript
+// In your gatsby-config.js
+  {
+    resolve: "gatsby-mdx-tts",
+    options: {
+      awsProfile: "gatsby-mdx-tts",
+    },
+  },
+```
+
 2. To override the credentials defined in a shared credentials file or to easily build on a CI environment you can optionally pass in the AWS credentials using plugin configuration options:
 
 ```javascript
@@ -222,4 +235,3 @@ A big thank you goes to the current sponsors of this library:
      </tr>
   </tbody>
 </table>
-
