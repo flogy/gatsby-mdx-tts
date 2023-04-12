@@ -174,14 +174,28 @@ const generateFiles = async (
     );
 
     mkdirSync(publicPath, { recursive: true });
-    writeFileSync(
-      path.join(publicPath, `${speechOutputBlock.id}.mp3`),
-      Buffer.from(eventuallyRegeneratedAudio, "base64")
-    );
-    writeFileSync(
-      path.join(publicPath, `${speechOutputBlock.id}.json`),
-      JSON.stringify(eventuallyRegeneratedSpeechMarks)
-    );
+
+    if (eventuallyRegeneratedAudio) {
+      writeFileSync(
+        path.join(publicPath, `${speechOutputBlock.id}.mp3`),
+        Buffer.from(eventuallyRegeneratedAudio, "base64")
+      );
+    } else {
+      reporter.warn(
+        `No audio data found in cache for SpeechOutput with ID: ${speechOutputBlock.id}`
+      );
+    }
+
+    if (eventuallyRegeneratedSpeechMarks) {
+      writeFileSync(
+        path.join(publicPath, `${speechOutputBlock.id}.json`),
+        JSON.stringify(eventuallyRegeneratedSpeechMarks)
+      );
+    } else {
+      reporter.warn(
+        `No speech marks found in cache for SpeechOutput with ID: ${speechOutputBlock.id}`
+      );
+    }
   }
 };
 
