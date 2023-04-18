@@ -10,7 +10,7 @@
 
 ## Demo
 
-> Check out the [▶️ LIVE DEMO](https://gatsby-mdx-tts.netlify.com/curses-counter-curses-and-more)!
+> Check out the [▶️ LIVE DEMO](https://gatsby-mdx-tts.netlify.com)!
 
 ![Demo Screencast](./img/demo.gif)
 
