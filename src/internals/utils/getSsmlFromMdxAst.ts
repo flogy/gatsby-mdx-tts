@@ -1,26 +1,47 @@
 import { Node } from "unist";
+import visit from "unist-util-visit";
 
 const headingBreakTag = "<break time='0.5s'/>";
 const paragraphBreakTag = "<break time='1s'/>";
 
+const getChildText = (node: Node) => {
+  const textParts: string[] = [];
+
+  visit<Node>(
+    node,
+    [
+      (node: Node) => {
+        return node.type === "text";
+      },
+    ],
+    (node) => {
+      textParts.push(node.value as string);
+    }
+  );
+
+  return textParts.join("");
+};
+
 const mdastToSsmlString = (node: Node) => {
-  let ssmlString = "";
-  if (node.type !== "jsx") {
-    ssmlString = ssmlString.concat(
-      ((node && node.value && node.value) as string) || ""
-    );
-  }
-  const children: any = node.children;
-  if (children) {
-    ssmlString = ssmlString.concat(children.map(mdastToSsmlString).join(""));
-  }
-  if (node.type === "paragraph") {
-    ssmlString = `${ssmlString}${paragraphBreakTag}`;
-  }
-  if (node.type === "heading") {
-    ssmlString = `<s>${ssmlString}</s>${headingBreakTag}`;
-  }
-  return ssmlString;
+  const textParts: string[] = [];
+
+  visit<Node>(
+    node,
+    [
+      (node: Node) => {
+        return ["paragraph", "heading"].includes(node.type);
+      },
+    ],
+    (node) => {
+      if (node.type === "paragraph") {
+        textParts.push(`${getChildText(node)}${paragraphBreakTag}`);
+      } else if (node.type === "heading") {
+        textParts.push(`<s>${getChildText(node)}</s>${headingBreakTag}`);
+      }
+    }
+  );
+
+  return textParts.join("");
 };
 
 const getSsmlFromMdxAst = (mdAst: Node) => {

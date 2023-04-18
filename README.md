@@ -82,15 +82,16 @@ There are various ways to provide your AWS credentials to the plugin. For exampl
 
 ### All configurations
 
-| Option                       | Required | Example                                               |
-| ---------------------------- | -------- | ----------------------------------------------------- |
-| `awsRegion`                  | Yes      | `"us-east-1"`                                         |
-| `defaultVoiceId`             | Yes      | `"Justin"`                                            |
-| `awsProfile`                 | No       | `"gatsby-mdx-tts"`                                    |
-| `defaultSsmlTags`            | No       | `"<prosody rate='70%'>$SPEECH_OUTPUT_TEXT</prosody>"` |
-| `defaultLexiconNames`        | No       | `["LexA", "LexB"]`                                    |
-| `ignoredCharactersRegex`     | No       | `/·/`                                                 |
-| `speechOutputComponentNames` | No       | `["CustomComponent"]`                                 |
+| Option                                     | Required | Example                                               |
+| ------------------------------------------ | -------- | ----------------------------------------------------- |
+| `awsRegion`                                | Yes      | `"us-east-1"`                                         |
+| `defaultVoiceId`                           | Yes      | `"Justin"`                                            |
+| `awsProfile`                               | No       | `"gatsby-mdx-tts"`                                    |
+| `defaultSsmlTags`                          | No       | `"<prosody rate='70%'>$SPEECH_OUTPUT_TEXT</prosody>"` |
+| `defaultLexiconNames`                      | No       | `["LexA", "LexB"]`                                    |
+| `ignoredCharactersRegex`                   | No       | `/·/`                                                 |
+| `speechOutputComponentNames`               | No       | `["CustomComponent"]`                                 |
+| `skipRegeneratingIfExistingInPublicFolder` | No       | `true`                                                |
 
 ##### About `defaultSsmlTags`:
 
@@ -108,12 +109,16 @@ You might also want those words not to be split up during word marking. Therefor
 
 If you want to use your own component to handle the generated speech output you can specify its name using the `speechOutputComponentNames` option. The plugin will then use this instead of `SpeechOutput` to extract the text to be used for TTS generation. It is also possible to define multiple component names. Like that you can customize the way speech output is handled. Find more information about this in the [customization chapter](#customize).
 
+#### About `skipRegeneratingIfExistingInPublicFolder`:
+
+Regenerating all the files for every cache invalidation can quickly get costly. To avoid regenerating files that are already existing in the public folder, activate this flag. **Be aware that this will lead to outdated files if you change the MDX files!**
+
 ### Embed speech output in your MDX
 
 After configuring the plugin you can now add the `<SpeechOutput></SpeechOutput>` component to your MDX files. The surrounded content will then be playable. You can add multiple speech output blocks to your content, but make sure the `id` is always set to an **unique value over all occurrences**. Also, it is important that there is an empty line between the `SpeechOutput` tags and the content to get it working.
 
 ```markdown
-import SpeechOutput from "gatsby-mdx-tts/SpeechOutput"
+import SpeechOutput from "gatsby-mdx-tts/SpeechOutput.js"
 
 This text will be outside the speech output.
 

@@ -1,7 +1,5 @@
 import React from "react";
-import Adapter from "enzyme-adapter-react-16";
-import { act } from "react-dom/test-utils";
-import { configure, mount } from "enzyme";
+import { render } from "@testing-library/react";
 import WordMarker from "../internals/components/WordMarker";
 
 const executeWordMarkerTest = (
@@ -10,24 +8,15 @@ const executeWordMarkerTest = (
   expectedResultingHtml: string,
   ignoredWordSplittingCharactersRegex?: RegExp
 ) => {
-  configure({ adapter: new Adapter() });
-
-  let component: any;
-  act(() => {
-    component = mount(
-      <WordMarker
-        markedWordIndex={markedWordIndex}
-        ignoredWordSplittingCharactersRegex={
-          ignoredWordSplittingCharactersRegex
-        }
-      >
-        {jsx}
-      </WordMarker>
-    );
-  });
-  component.update();
-
-  expect(component.html()).toEqual(expectedResultingHtml);
+  const component = render(
+    <WordMarker
+      markedWordIndex={markedWordIndex}
+      ignoredWordSplittingCharactersRegex={ignoredWordSplittingCharactersRegex}
+    >
+      {jsx}
+    </WordMarker>
+  );
+  expect(component.container.innerHTML).toEqual(expectedResultingHtml);
 };
 
 it("mark no word in heading", async () => {

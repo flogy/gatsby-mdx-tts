@@ -2,8 +2,10 @@ module.exports = {
   roots: ["<rootDir>/src"],
   modulePathIgnorePatterns: ["utils"],
   transform: {
-    "^.+\\.tsx?$": "ts-jest"
+    "\\.[jt]sx?$": "babel-jest",
   },
+  transformIgnorePatterns: ["\\.pnp\\.[^\\/]+$"],
   testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$",
-  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"]
+  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
+  testEnvironment: "jsdom",
 };

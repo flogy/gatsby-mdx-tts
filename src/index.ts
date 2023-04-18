@@ -1,6 +1,6 @@
 import { Node } from "unist";
 import path from "path";
-import { mkdirSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { createInterface } from "readline";
 import crypto from "crypto";
 import { defaultProvider } from "@aws-sdk/credential-provider-node";
@@ -10,7 +10,7 @@ import {
   SynthesizeSpeechCommandInput,
   VoiceId,
 } from "@aws-sdk/client-polly";
-import { Cache, Reporter } from "gatsby";
+import { GatsbyCache, Reporter } from "gatsby";
 import extractSpeechOutputBlocks, {
   SpeechOutputBlock,
 } from "./internals/utils/extractSpeechOutputBlocks";
@@ -40,7 +40,7 @@ const hasTextChanged = (speechMarksJson: any, freshText: string) => {
 const generateTtsFiles = async (
   pluginOptions: PluginOptions,
   speechOutputBlock: SpeechOutputBlock,
-  cache: Cache,
+  cache: GatsbyCache,
   reporter: Reporter
 ) => {
   // TODO: move AWS and Polly initialization out of this loop but only initialize if actually some text has changed
@@ -107,7 +107,7 @@ const generateTtsFiles = async (
   );
   const audio = await mp3Data.AudioStream?.transformToByteArray();
   if (audio) {
-    cache.cache.set(
+    cache.set(
       getAudioCacheKey(speechOutputBlock.id),
       Buffer.from(audio).toString("base64")
     );
@@ -133,29 +133,40 @@ const generateTtsFiles = async (
       textHash: getHash(speechOutputBlock.text),
       speechMarks: speechMarksJson,
     };
-    cache.cache.set(getSpeechMarksCacheKey(speechOutputBlock.id), json);
+    cache.set(getSpeechMarksCacheKey(speechOutputBlock.id), json);
   }
 };
 
 const generateFiles = async (
   speechOutputBlocks: SpeechOutputBlock[],
   pluginOptions: PluginOptions,
-  cache: Cache,
+  cache: GatsbyCache,
   reporter: Reporter
 ) => {
   for (let i = 0; i < speechOutputBlocks.length; i++) {
     const speechOutputBlock = speechOutputBlocks[i];
 
-    const speechMarks = await cache.cache.get(
+    const speechMarks = await cache.get(
       getSpeechMarksCacheKey(speechOutputBlock.id)
     );
-    const audio = await cache.cache.get(getAudioCacheKey(speechOutputBlock.id));
+    const audio = await cache.get(getAudioCacheKey(speechOutputBlock.id));
 
     const filesAlreadyExist = speechMarks && audio;
 
     // TODO: also check if SpeechOutput props have changed!
     const isGenerationRequired =
       !filesAlreadyExist || hasTextChanged(speechMarks, speechOutputBlock.text);
+
+    if (
+      pluginOptions.skipRegeneratingIfExistingInPublicFolder &&
+      existsSync(path.join(publicPath, `${speechOutputBlock.id}.mp3`)) &&
+      existsSync(path.join(publicPath, `${speechOutputBlock.id}.json`))
+    ) {
+      reporter.info(
+        `Skip regenerating because of 'skipRegeneratingIfExistingInPublicFolder' flag for SpeechOutput with ID: ${speechOutputBlock.id}`
+      );
+      return;
+    }
 
     if (isGenerationRequired) {
       await generateTtsFiles(pluginOptions, speechOutputBlock, cache, reporter);
@@ -165,11 +176,11 @@ const generateFiles = async (
       );
     }
 
-    const eventuallyRegeneratedSpeechMarks = await cache.cache.get(
+    const eventuallyRegeneratedSpeechMarks = await cache.get(
       getSpeechMarksCacheKey(speechOutputBlock.id)
     );
 
-    const eventuallyRegeneratedAudio = await cache.cache.get(
+    const eventuallyRegeneratedAudio = await cache.get(
       getAudioCacheKey(speechOutputBlock.id)
     );
 
@@ -201,7 +212,7 @@ const generateFiles = async (
 
 interface Parameters {
   markdownAST: Node;
-  getCache: (id: string) => Cache;
+  cache: GatsbyCache;
   reporter: Reporter;
 }
 
@@ -213,6 +224,7 @@ interface PluginOptions {
   defaultLexiconNames?: Array<string>;
   ignoredCharactersRegex?: RegExp;
   speechOutputComponentNames?: string[];
+  skipRegeneratingIfExistingInPublicFolder?: boolean;
 }
 
 module.exports = async (
@@ -225,13 +237,11 @@ module.exports = async (
     pluginOptions.ignoredCharactersRegex
   );
 
-  const cache = parameters.getCache("gatsby-mdx-tts");
-
   if (speechOutputBlocks.length > 0) {
     await generateFiles(
       speechOutputBlocks,
       pluginOptions,
-      cache,
+      parameters.cache,
       parameters.reporter
     );
   }

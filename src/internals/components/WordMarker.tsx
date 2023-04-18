@@ -3,6 +3,7 @@ import React from "react";
 interface WordMarkerProps {
   markedWordIndex: number;
   ignoredWordSplittingCharactersRegex?: RegExp;
+  children?: React.ReactNode;
 }
 
 type MapFunction = (child: React.ReactNode) => React.ReactNode;
@@ -13,6 +14,7 @@ const deepMap = (
 ): React.ReactNode => {
   return React.Children.map(children, (child) => {
     if (React.isValidElement(child) && child.props.children) {
+      // @ts-ignore
       return React.cloneElement<React.ReactNode>(child, {
         children: deepMap(child.props.children, map),
       });

@@ -23,6 +23,7 @@ export interface SpeechOutputProps {
   onWordMarked?: (word: string) => void;
   useCustomSoundHook?: UseSoundHookSignature;
   ignoredWordSplittingCharactersRegex?: RegExp;
+  children?: React.ReactNode;
 }
 
 const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = (props) => {
@@ -32,12 +33,11 @@ const SpeechOutput: React.FunctionComponent<SpeechOutputProps> = (props) => {
   const [speechMarks, setSpeechmarks] = React.useState<SpeechMark[]>([]);
 
   React.useEffect(() => {
-    const fetchSpeechMarks = async () => {
-      const response: any = await isomorphicFetch(`/tts/${props.id}.json`);
-      const speechMarksJson: any = await response.json();
+    (async () => {
+      const response = await isomorphicFetch(`/tts/${props.id}.json`);
+      const speechMarksJson = await response.json();
       setSpeechmarks(speechMarksJson.speechMarks);
-    };
-    fetchSpeechMarks();
+    })().catch((error) => console.error(error));
   }, [props.id]);
 
   const currentWord = useSpeechMarks(speechMarks, isPlaying);
