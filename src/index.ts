@@ -27,10 +27,7 @@ const getAudioCacheKey = (speechOutputId: string) => `${speechOutputId}.mp3`;
 const publicPath = "./public/tts/";
 
 const getHash = (text: string) =>
-  crypto
-    .createHash("md5")
-    .update(text)
-    .digest("hex");
+  crypto.createHash("md5").update(text).digest("hex");
 
 const hasTextChanged = (speechMarksJson: any, freshText: string) => {
   const textHashInFile = speechMarksJson.textHash;

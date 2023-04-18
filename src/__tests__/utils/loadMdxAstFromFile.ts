@@ -7,10 +7,7 @@ const testDirectory = "./src/__tests__";
 
 const loadMdxAstFromFile = (fileName: string) => {
   const file = readSync(`${testDirectory}/${fileName}`);
-  return unified()
-    .use(remarkParse)
-    .use(remarkMdx)
-    .parse(file);
+  return unified().use(remarkParse).use(remarkMdx).parse(file);
 };
 
 export default loadMdxAstFromFile;

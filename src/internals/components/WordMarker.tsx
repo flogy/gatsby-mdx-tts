@@ -111,9 +111,8 @@ export const markChildText = (
 };
 
 const WordMarker: React.FunctionComponent<WordMarkerProps> = (props) => {
-  const [manipulatedChildren, setManipulatedChildren] = React.useState<
-    React.ReactNode
-  >(props.children);
+  const [manipulatedChildren, setManipulatedChildren] =
+    React.useState<React.ReactNode>(props.children);
 
   React.useEffect(() => {
     setManipulatedChildren(

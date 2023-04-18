@@ -19,11 +19,10 @@ const useSpeechMarks = (
 ): CurrentWord => {
   const noWordSelected: CurrentWord = {
     index: -1,
-    word: ""
+    word: "",
   };
-  const [currentWord, setCurrentWord] = React.useState<CurrentWord>(
-    noWordSelected
-  );
+  const [currentWord, setCurrentWord] =
+    React.useState<CurrentWord>(noWordSelected);
   const timeoutHandles = React.useRef<NodeJS.Timeout[]>([]);
 
   React.useEffect(() => {
@@ -50,7 +49,7 @@ const useSpeechMarks = (
             () =>
               setCurrentWord({
                 index,
-                word: speechMark.value
+                word: speechMark.value,
               }),
             speechMark.time
           )
