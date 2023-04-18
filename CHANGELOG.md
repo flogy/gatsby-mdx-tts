@@ -5,7 +5,7 @@
 ### Breaking Changes
 
 - Add file ending to `SpeechOutput` component imports in your MDX files: `import SpeechOutput from "gatsby-mdx-tts/SpeechOutput.js";` as MDX v2 only supports ESM imports.
-- Plugin option `awsCredentials` was removed. Use `awsProfile` or environment variables instead (see [README](https://github.com/flogy/gatsby-mdx-tts/blob/master/README.md#aws-credentials) for details).
+- Plugin option `awsCredentials` was removed. Use `awsProfile` or environment variables instead (see [README](https://github.com/flogy/gatsby-mdx-tts/blob/main/README.md#aws-credentials) for details).
 - Refresh Gatsby cache using `npx gatsby clean` as the cache mechanics have changed.
 
 ### Major Changes
