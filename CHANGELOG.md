@@ -1,5 +1,25 @@
 ### Changelog
 
+## 1.0.0
+
+### Breaking Changes
+
+- Add file ending to `SpeechOutput` component imports in your MDX files: `import SpeechOutput from "gatsby-mdx-tts/SpeechOutput.js";` as MDX v2 only supports ESM imports.
+- Plugin option `awsCredentials` was removed. Use `awsProfile` or environment variables instead (see [README](https://github.com/flogy/gatsby-mdx-tts/blob/master/README.md#aws-credentials) for details).
+- Refresh Gatsby cache using `npx gatsby clean` as the cache mechanics have changed.
+
+### Major Changes
+
+- 60d6127:
+  - Added support for Gatsby 5.
+  - Added support for React 18.
+  - Added support for MDX v2.
+
+### Minor Changes
+
+- 7de6f47: Display warning in Gatsby log if an empty content block was found.
+- 2d0300d: Added `skipRegeneratingIfExistingInPublicFolder` configuration option to allow skipping regenerating all audio files and speech marks when Gatsby cache is cleared and they already exist in the public folder.
+
 #### [v0.0.12](https://github.com/flogy/gatsby-mdx-tts/compare/v0.0.11...v0.0.12)
 
 > 9 April 2020
