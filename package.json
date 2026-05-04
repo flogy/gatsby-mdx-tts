@@ -17,7 +17,7 @@
     "prepublishOnly": "npm run build && npm run test",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\""
   },
-  "author": "Florian Gyger <info@floriangyger.ch>",
+  "author": "Florian Gyger Software GmbH <info@floriangyger.ch>",
   "license": "MIT",
   "keywords": [
     "gatsby",
